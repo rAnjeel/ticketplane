@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 :: Déclaration des variables
-set "work_dir=D:\Etudes\ITU DOCS\S6\Framework project\TicketPlane"
+set "work_dir=D:\Github\ticketplane\TicketPlane"
 set "temp=%work_dir%\temp"
 set "web_xml=%work_dir%\config\web.xml"
 set "lib=%work_dir%\lib"

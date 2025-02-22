@@ -12,8 +12,8 @@
     <title>AirBooking - Connexion</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/gh/rAnjeel/ticketplane-assets@main/assets/css/style.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/gh/rAnjeel/ticketplane-assets@main/assets/css/login.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/rAnjeel/ticketplane@main/assets/css/style.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/rAnjeel/ticketplane@main/assets/css/login.css" rel="stylesheet">
 </head>
 <body>
     <div class="login-container">
