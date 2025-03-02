@@ -33,3 +33,9 @@
     color: var(--primary-color);
     margin-bottom: 2rem;
 }
+
+.error-message {
+    background-color: #FEE2E2;
+    border: 1px solid #FCA5A5;
+    color: #DC2626;
+}

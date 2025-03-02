@@ -120,12 +120,6 @@ body {
     }
 }
 
-.error-message {
-    background-color: #FEE2E2;
-    border: 1px solid #FCA5A5;
-    color: #DC2626;
-}
-
 .success-message {
     background-color: #D1FAE5;
     border: 1px solid #6EE7B7;
