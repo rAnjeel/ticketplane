@@ -97,6 +97,7 @@ CREATE TABLE Reservation(
    id_type_siege INTEGER NOT NULL,
    prix_total DECIMAL(10, 2) NOT NULL,
    code_reservation VARCHAR(10) NOT NULL,
+   photo_passeport VARCHAR(255) NOT NULL,
    PRIMARY KEY(id_reservation),
    FOREIGN KEY(id_vol) REFERENCES Vol(id_vol),
    FOREIGN KEY(id_utilisateur) REFERENCES Utilisateur(id_utilisateur),
@@ -104,20 +105,13 @@ CREATE TABLE Reservation(
    FOREIGN KEY(id_type_siege) REFERENCES TypeSiege(id_type),
    UNIQUE(code_reservation)
 );
--- Table pour les passagers d'une réservation
-CREATE TABLE PassagerReservation(
-   id_passager SERIAL,
-   id_reservation INTEGER NOT NULL,
-   photo_passeport VARCHAR(255) NOT NULL,
-   PRIMARY KEY(id_passager),
-   FOREIGN KEY(id_reservation) REFERENCES Reservation(id_reservation)
-);
+
 -- Suppression de l'ancienne table PassagersVol
 DROP TABLE IF EXISTS PassagersVol;
 -- Insertion des statuts de réservation de base
 INSERT INTO StatutReservation (nom)
-VALUES ('En attente'),
-   ('Confirme'),
+VALUES ('Confirme'),
+   ('En attente'),
    ('Annule'),
    ('Rembourse');
 -- Modification de la table Vol pour ajouter les places disponibles et l'avion

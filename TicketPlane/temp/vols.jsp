@@ -95,6 +95,24 @@
                                     <p class="text-muted">${vol.dateArrivee}</p>
                                 </div>
                             </div>
+                            
+                            <div class="mb-3">
+                                <p class="mb-1"><strong>Tarifs disponibles:</strong></p>
+                                <div class="d-flex flex-wrap">
+                                    <c:forEach items="${vol.tarifs}" var="tarif">
+                                        <div class="me-3 mb-2">
+                                            <span class="badge bg-info text-dark">
+                                                <c:forEach items="${typesSiege}" var="type">
+                                                    <c:if test="${type.idType == tarif.idTypeSiege}">
+                                                        ${type.nom}
+                                                    </c:if>
+                                                </c:forEach>
+                                                : ${tarif.prix} Ar
+                                            </span>
+                                        </div>
+                                    </c:forEach>
+                                </div>
+                            </div>
 
                             <div class="text-end">
                                 <a href="${pageContext.request.contextPath}/reservation/vol?id=${vol.idVol}" 

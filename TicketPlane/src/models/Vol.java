@@ -30,6 +30,8 @@ public class Vol {
     @FormField(name = "ville_arrivee")
     private VilleDesservie villeArrivee;
 
+    private List<TarifVol> tarifs;
+
     // Constructeur par défaut
     public Vol() {}
 
@@ -82,6 +84,14 @@ public class Vol {
 
     public void setVilleArrivee(VilleDesservie villeArrivee) {
         this.villeArrivee = villeArrivee;
+    }
+
+    public List<TarifVol> getTarifs() {
+        return tarifs;
+    }
+
+    public void setTarifs(List<TarifVol> tarifs) {
+        this.tarifs = tarifs;
     }
 
     // Méthode utilitaire pour convertir String en Timestamp

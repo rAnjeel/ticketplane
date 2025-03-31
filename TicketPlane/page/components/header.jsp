@@ -13,9 +13,11 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="${pageContext.request.contextPath}/">Accueil</a>
                     </li>
+                    <% if(session.getAttribute("userRole") != null && session.getAttribute("userRole").equals("ADMIN")) { %>
                     <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/destinations">Destinations</a>
+                        <a class="nav-link" href="${pageContext.request.contextPath}/admin/database">Database</a>
                     </li>
+                    <% } %>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="volsDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
@@ -27,6 +29,13 @@
                                     <i class="fas fa-list me-2"></i>Liste des vols
                                 </a>
                             </li>
+                            <% if(session.getAttribute("user") != null) { %>
+                                <li>
+                                    <a class="dropdown-item" href="${pageContext.request.contextPath}/reservation/vol">
+                                        <i class="fas fa-ticket-alt me-2"></i>Réserver un vol
+                                    </a>
+                                </li>
+                            <% } %>
                             <% if(session.getAttribute("userRole") != null && 
                                   session.getAttribute("userRole").equals("ADMIN")) { %>
                                 <li>

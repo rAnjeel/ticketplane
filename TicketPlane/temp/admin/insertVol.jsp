@@ -1,10 +1,11 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <%@ page import="models.Vol" %>
 
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html lang="fr">
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Insertion Vol</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/gh/rAnjeel/ticketplane@main/assets/css/style.css" rel="stylesheet">
@@ -45,7 +46,7 @@
         }
         %>
         
-        <form action="${pageContext.request.contextPath}/vol/insertVol" method="post" class="mt-4">
+        <form action="${pageContext.request.contextPath}/vol/insertVol" method="post" class="mt-4" accept-charset="UTF-8">
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="villeDepart" class="form-label">Ville de départ</label>
@@ -76,13 +77,51 @@
                 <div class="col-md-6">
                     <label for="dateDepart" class="form-label">Date et heure de départ</label>
                     <input type="text" class="form-control datetimepicker" id="dateDepart" 
-                           name="vol.date_depart" value="<%= formData != null ? formData.getDateDepart() : "" %>">
+                           name="vol.date_depart" value="<%= formData != null ? formData.getDateDepart() : "" %>" required>
                 </div>
                 
                 <div class="col-md-6">
                     <label for="dateArrivee" class="form-label">Date et heure d'arrivée</label>
                     <input type="text" class="form-control datetimepicker" id="dateArrivee" 
-                           name="vol.date_arrivee" value="<%= formData != null ? formData.getDateArrivee() : "" %>">
+                           name="vol.date_arrivee" value="<%= formData != null ? formData.getDateArrivee() : "" %>" required>
+                </div>
+            </div>
+            
+            <!-- Section pour les tarifs -->
+            <h4 class="mt-4 mb-3">Tarifs par type de siège</h4>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Tarif Business -->
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Business</h5>
+                                    <input type="hidden" name="tarif_business.id_typesiege" value="1">
+                                    <div class="mb-2">
+                                        <label for="tarifBusiness" class="form-label">Prix Business (Ar)</label>
+                                        <input type="number" class="form-control" id="tarifBusiness" 
+                                               name="tarif_business.prix" min="0" step="0.01" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tarif Economique -->
+                        <div class="col-md-6 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Économique</h5>
+                                    <input type="hidden" name="tarif_economique.id_typesiege" value="2">
+                                    <div class="mb-2">
+                                        <label for="tarifEconomique" class="form-label">Prix Économique (Ar)</label>
+                                        <input type="number" class="form-control" id="tarifEconomique" 
+                                               name="tarif_economique.prix" min="0" step="0.01" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

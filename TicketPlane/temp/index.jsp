@@ -18,7 +18,7 @@
     <div class="container">
       <h1 class="display-4">Voyagez en Toute Sérénité</h1>
       <p class="lead">Découvrez nos destinations et réservez votre prochain voyage</p>
-      <a href="${pageContext.request.contextPath}/vols" class="btn btn-light btn-lg mt-3">
+      <a href="${pageContext.request.contextPath}/vol/list" class="btn btn-light btn-lg mt-3">
         Voir les Vols Disponibles
       </a>
     </div>
