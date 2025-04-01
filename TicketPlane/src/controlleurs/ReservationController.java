@@ -8,7 +8,9 @@ import models.*;
 import config.DatabaseConnection;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Controller
@@ -114,50 +116,57 @@ public class ReservationController {
         
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-            try {
-                // Récupérer les objets à partir des IDs
-                Vol vol = Vol.read(conn, id_vol);
-                TypeSiege typeSiege = TypeSiege.getElementById(conn, typeSiege_idType);
-                Utilisateur utilisateur = (Utilisateur) session.get("user");
-                
-                // Vérifier que les objets existent
-                if (vol == null || typeSiege == null || utilisateur == null) {
-                    throw new SQLException("Données manquantes pour la réservation");
-                }
-                
-                // Définir le statut par défaut (En attente - ID 1)
-                StatutReservation statut = StatutReservation.read(conn, 1);
-                
-                // Calculer le prix total à partir du tarif correspondant
-                TarifVol tarif = TarifVol.getTarifByVolAndType(conn, id_vol, typeSiege_idType);
-                if (tarif == null) {
-                    throw new SQLException("Tarif introuvable pour ce vol et ce type de siège");
-                }
-                
-                // Configuration de l'objet réservation
-                reservation.setVol(vol);
-                reservation.setUtilisateur(utilisateur);
-                reservation.setTypeSiege(typeSiege);
-                reservation.setStatut(statut);
-                reservation.setPrixTotal(tarif.getPrix());
-                reservation.setPhotoPasseport(photoPasseport.getFileName());
-                
-                // Création de la réservation en base de données
-                reservation.create(conn);
-                                
-                conn.commit();
-                
-                // Configuration de la réponse - Rediriger vers la liste des réservations
-                mv.addObject("message", "Votre réservation a été créée avec succès!");
-                mv.setUrl("/reservation/mes-reservations");
-
-            } catch (SQLException e) {
-                conn.rollback();
-                throw e;
+            // Récupérer les objets à partir des IDs
+            Vol vol = Vol.read(conn, id_vol);
+            TypeSiege typeSiege = TypeSiege.getElementById(conn, typeSiege_idType);
+            Utilisateur utilisateur = (Utilisateur) session.get("user");
+            
+            // Vérifier que les objets existent
+            if (vol == null || typeSiege == null || utilisateur == null) {
+                throw new SQLException("Données manquantes pour la réservation");
             }
+            
+            // Vérifier le délai avant vol pour la réservation
+            int heuresAvantVolReservation = ParametreSysteme.getHeuresAvantVolReservation(conn);
+            Timestamp dateDepart = Timestamp.valueOf(vol.getDateDepart());
+            Timestamp maintenant = new Timestamp(System.currentTimeMillis());
+            
+            // Calculer la différence en heures
+            long differenceEnMillis = dateDepart.getTime() - maintenant.getTime();
+            long differenceEnHeures = differenceEnMillis / (1000 * 60 * 60);
+            
+            if (differenceEnHeures < heuresAvantVolReservation) {
+                throw new SQLException("Impossible de reserver ce vol. La reservation doit être effectuee au moins " + 
+                                        heuresAvantVolReservation + " heures avant le depart.");
+            }
+            
+            // Définir le statut par défaut (En attente - ID 1)
+            StatutReservation statut = StatutReservation.read(conn, 1);
+            
+            // Calculer le prix total à partir du tarif correspondant
+            TarifVol tarif = TarifVol.getTarifByVolAndType(conn, id_vol, typeSiege_idType);
+            if (tarif == null) {
+                throw new SQLException("Tarif introuvable pour ce vol et ce type de siège");
+            }
+            
+            // Configuration de l'objet réservation
+            reservation.setVol(vol);
+            reservation.setUtilisateur(utilisateur);
+            reservation.setTypeSiege(typeSiege);
+            reservation.setStatut(statut);
+            reservation.setPrixTotal(tarif.getPrix());
+            reservation.setPhotoPasseport(photoPasseport.getFileName());
+            
+            // Création de la réservation en base de données
+            reservation.create(conn);
+                            
+            conn.commit();
+            
+            // Configuration de la réponse - Rediriger vers la liste des réservations
+            mv.addObject("message", "Votre réservation a été créée avec succès!");
+            mv.setUrl("/reservation/mesReservations");
         } catch (SQLException e) {
             e.printStackTrace();
-            mv.setUrl("/reservation/form.jsp");
             
             // Message d'erreur détaillé
             String errorMessage = "Erreur lors de la création de la réservation: " + e.getMessage();
@@ -168,6 +177,68 @@ public class ReservationController {
                 errorMessage += ". Cause: " + e.getCause().getMessage();
             }
             mv.addObject("error", errorMessage);
+            mv.setUrl("/error.jsp");
+        }
+        
+        return mv;
+    }
+
+    @Url("/reservation/annuler")
+    public ModelView annulerReservation(@Param(name = "idReservation") int idReservation) {
+        ModelView mv = new ModelView();
+        mv.setUrl("/reservation/mesReservations");
+        
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                // Récupérer la réservation
+                Reservation reservation = Reservation.getById(conn, idReservation);
+                if (reservation == null) {
+                    throw new SQLException("Réservation non trouvée");
+                }
+                
+                // Vérifier que la réservation est en attente (statut 1)
+                if (reservation.getStatut().getIdStatut() != 1) {
+                    throw new SQLException("Seules les réservations en attente peuvent être annulées");
+                }
+                
+                // Vérifier le délai avant vol pour l'annulation
+                int heuresAvantVolAnnulation = ParametreSysteme.getHeuresAvantVolAnnulation(conn);
+                Timestamp dateDepart = Timestamp.valueOf(reservation.getVol().getDateDepart());
+                Timestamp maintenant = new Timestamp(System.currentTimeMillis());
+                
+                // Calculer la différence en heures
+                long differenceEnMillis = dateDepart.getTime() - maintenant.getTime();
+                long differenceEnHeures = differenceEnMillis / (1000 * 60 * 60);
+                
+                if (differenceEnHeures < heuresAvantVolAnnulation) {
+                    throw new SQLException("Impossible d'annuler cette reservation. L'annulation doit etre effectuee au moins " + 
+                                          heuresAvantVolAnnulation + " heures avant le depart.");
+                }
+                
+                // Mettre à jour le statut (3 = Annulée)
+                StatutReservation statutAnnule = StatutReservation.read(conn, 3);
+                reservation.setStatut(statutAnnule);
+                
+                // Mettre à jour la réservation
+                String sql = "UPDATE Reservation SET id_statut = ? WHERE id_reservation = ?";
+                try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                    pstmt.setInt(1, statutAnnule.getIdStatut());
+                    pstmt.setInt(2, idReservation);
+                    pstmt.executeUpdate();
+                }
+                
+                conn.commit();
+                mv.addObject("message", "Succes de l'annulation de la reservation");
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            String errorMessage = "Erreur lors de l'annulation de la réservation: " + e.getMessage();
+            mv.addObject("error", errorMessage);
+            mv.setUrl("/error.jsp");
         }
         
         return mv;

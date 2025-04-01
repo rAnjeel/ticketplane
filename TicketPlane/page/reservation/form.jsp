@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Réservation de vol - AirBooking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -46,7 +47,8 @@
 
             <c:if test="${not empty error}">
                 <div class="alert alert-danger" role="alert">
-                    ${error}
+                    <i class="fas fa-exclamation-circle"></i>
+                    <c:out value="${error}" escapeXml="false" />
                 </div>
             </c:if>
 

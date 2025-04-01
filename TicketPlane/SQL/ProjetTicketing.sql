@@ -106,6 +106,19 @@ CREATE TABLE Reservation(
    UNIQUE(code_reservation)
 );
 
+CREATE TABLE parametres_systeme (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    valeur VARCHAR(255) NOT NULL,
+    description TEXT,
+    date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insertion des paramètres par défaut
+INSERT INTO parametres_systeme (code, valeur, description) VALUES 
+('HEURES_AVANT_VOL_RESERVATION', '72', 'Nombre d''heures minimum avant le départ du vol pour effectuer une réservation'),
+('HEURES_AVANT_VOL_ANNULATION', '24', 'Nombre d''heures minimum avant le départ du vol pour annuler une réservation');
+
 -- Suppression de l'ancienne table PassagersVol
 DROP TABLE IF EXISTS PassagersVol;
 -- Insertion des statuts de réservation de base

@@ -160,4 +160,51 @@ public class Reservation {
         
         return reservations;
     }
+
+    public static Reservation getById(Connection conn, int idReservation) throws SQLException {
+        String sql = "SELECT * FROM Reservation WHERE id_reservation = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idReservation);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Reservation reservation = new Reservation();
+                    reservation.setIdReservation(rs.getInt("id_reservation"));
+                    
+                    // Charger les objets associés
+                    Vol vol = Vol.read(conn, rs.getInt("id_vol"));
+                    TypeSiege typeSiege = TypeSiege.getElementById(conn, rs.getInt("id_type_siege"));
+                    StatutReservation statut = StatutReservation.read(conn, rs.getInt("id_statut"));
+                    
+                    reservation.setVol(vol);
+                    reservation.setTypeSiege(typeSiege);
+                    reservation.setStatut(statut);
+                    reservation.setPrixTotal(rs.getDouble("prix_total"));
+                    reservation.setDateReservation(rs.getTimestamp("date_reservation").toString());
+                    reservation.setCodeReservation(rs.getString("code_reservation"));
+                    reservation.setPhotoPasseport(rs.getString("photo_passeport"));
+                    
+                    return reservation;
+                }
+                return null;
+            }
+        }
+    }
+
+    public void update(Connection conn) throws SQLException {
+        String sql = "UPDATE Reservation SET id_vol = ?, id_utilisateur = ?, " +
+                    "id_statut = ?, id_type_siege = ?, prix_total = ?, " +
+                    "photo_passeport = ? WHERE id_reservation = ?";
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, vol.getIdVol());
+            pstmt.setInt(2, utilisateur.getIdUtilisateur());
+            pstmt.setInt(3, statut.getIdStatut());
+            pstmt.setInt(4, typeSiege.getIdType());
+            pstmt.setDouble(5, prixTotal);
+            pstmt.setString(6, photoPasseport);
+            pstmt.setInt(7, idReservation);
+            
+            pstmt.executeUpdate();
+        }
+    }
 } 
