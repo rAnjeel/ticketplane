@@ -113,4 +113,25 @@ public class ParametreSysteme {
         ParametreSysteme param = getByCode(conn, "HEURES_AVANT_VOL_ANNULATION");
         return param != null ? Integer.parseInt(param.getValeur()) : 24; // Valeur par défaut: 24 heures
     }
+
+    public static int getAgeMaxEnfant(Connection conn) throws SQLException {
+        return getIntParametre(conn, "AGE_MAX_ENFANT");
+    }
+
+    public static int getNbSiegesPromo(Connection conn) throws SQLException {
+        return getIntParametre(conn, "NB_SIEGES_PROMO");
+    }
+
+    public static int getTauxReductionEnfant(Connection conn) throws SQLException {
+        return getIntParametre(conn, "TAUX_REDUCTION_ENFANT");
+    }
+
+    public static int getTauxReductionPromo(Connection conn) throws SQLException {
+        return getIntParametre(conn, "TAUX_REDUCTION_PROMO");
+    }
+
+    private static int getIntParametre(Connection conn, String code) throws SQLException {
+        ParametreSysteme param = getByCode(conn, code);
+        return param != null ? Integer.parseInt(param.getValeur()) : 0; // 0 comme valeur par défaut
+    }
 } 
