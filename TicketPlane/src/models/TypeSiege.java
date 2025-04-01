@@ -25,14 +25,29 @@ public class TypeSiege {
         List<TypeSiege> types = new ArrayList<>();
         String sql = "SELECT * FROM TypeSiege";
         try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 types.add(new TypeSiege(
-                    rs.getInt("id_type"),
-                    rs.getString("nom")
-                ));
+                        rs.getInt("id_type"),
+                        rs.getString("nom")));
             }
         }
         return types;
+    }
+
+    public static TypeSiege getElementById(Connection conn, int id) throws SQLException {
+        String sql = "SELECT * FROM TypeSiege WHERE id_type = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new TypeSiege(
+                        rs.getInt("id_type"),
+                        rs.getString("nom")
+                    );
+                }
+            }
+        }
+        return null;
     }
 } 
