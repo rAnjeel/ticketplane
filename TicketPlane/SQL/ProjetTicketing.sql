@@ -98,6 +98,8 @@ CREATE TABLE Reservation(
    prix_total DECIMAL(10, 2) NOT NULL,
    code_reservation VARCHAR(10) NOT NULL,
    photo_passeport VARCHAR(255) NOT NULL,
+   est_enfant BOOLEAN DEFAULT FALSE,
+   est_promotion BOOLEAN DEFAULT FALSE,
    PRIMARY KEY(id_reservation),
    FOREIGN KEY(id_vol) REFERENCES Vol(id_vol),
    FOREIGN KEY(id_utilisateur) REFERENCES Utilisateur(id_utilisateur),
@@ -105,20 +107,45 @@ CREATE TABLE Reservation(
    FOREIGN KEY(id_type_siege) REFERENCES TypeSiege(id_type),
    UNIQUE(code_reservation)
 );
-
 CREATE TABLE parametres_systeme (
-    id SERIAL PRIMARY KEY,
-    code VARCHAR(50) NOT NULL UNIQUE,
-    valeur VARCHAR(255) NOT NULL,
-    description TEXT,
-    date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   id SERIAL PRIMARY KEY,
+   code VARCHAR(50) NOT NULL UNIQUE,
+   valeur VARCHAR(255) NOT NULL,
+   description TEXT,
+   date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 -- Insertion des paramètres par défaut
-INSERT INTO parametres_systeme (code, valeur, description) VALUES 
-('HEURES_AVANT_VOL_RESERVATION', '72', 'Nombre d''heures minimum avant le départ du vol pour effectuer une réservation'),
-('HEURES_AVANT_VOL_ANNULATION', '24', 'Nombre d''heures minimum avant le départ du vol pour annuler une réservation');
-
+INSERT INTO parametres_systeme (code, valeur, description)
+VALUES (
+      'HEURES_AVANT_VOL_RESERVATION',
+      '72',
+      'Nombre d''heures minimum avant le départ du vol pour effectuer une réservation'
+   ),
+   (
+      'HEURES_AVANT_VOL_ANNULATION',
+      '24',
+      'Nombre d''heures minimum avant le départ du vol pour annuler une réservation'
+   ),
+   (
+      'AGE_MAX_ENFANT',
+      '12',
+      'Âge maximum pour qu''un passager soit considéré comme enfant'
+   ),
+   (
+      'NB_SIEGES_PROMO',
+      '10',
+      'Nombre de sièges bénéficiant d''une promotion par vol'
+   ),
+   (
+      'TAUX_REDUCTION_ENFANT',
+      '50',
+      'Pourcentage de réduction pour les tarifs enfants'
+   ),
+   (
+      'TAUX_REDUCTION_PROMO',
+      '25',
+      'Pourcentage de réduction pour les sièges en promotion'
+   );
 -- Suppression de l'ancienne table PassagersVol
 DROP TABLE IF EXISTS PassagersVol;
 -- Insertion des statuts de réservation de base
@@ -139,3 +166,5 @@ CREATE INDEX idx_reservation_vol ON Reservation(id_vol);
 CREATE INDEX idx_reservation_utilisateur ON Reservation(id_utilisateur);
 CREATE INDEX idx_reservation_code ON Reservation(code_reservation);
 CREATE INDEX idx_passager_reservation ON PassagerReservation(id_reservation);
+CREATE INDEX idx_reservation_enfant ON Reservation(est_enfant);
+CREATE INDEX idx_reservation_promo ON Reservation(est_promotion);
