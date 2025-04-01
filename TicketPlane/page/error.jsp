@@ -1,45 +1,44 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Error</title>
-    <style>
-        .error-container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            text-align: center;
-            background-color: #fff3f3;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .error-message {
-            color: #dc3545;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #dc3545;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-        }
-        .back-link:hover {
-            background-color: #c82333;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <title>Erreur - AirBooking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="error-container">
-        <div class="error-message">
-            <h1>⚠️ Error</h1>
-            <p><%= request.getAttribute("errorMessage") %></p>
+    <jsp:include page="components/header.jsp" />
+    
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Erreur</h4>
+                    </div>
+                    <div class="card-body">
+                        <c:if test="${not empty error}">
+                            <div class="alert alert-danger">
+                                <c:out value="${error}" escapeXml="false" />
+                            </div>
+                        </c:if>
+                        
+                        <div class="mt-4 text-center">
+                            <a href="javascript:history.back()" class="btn btn-primary">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </a>
+                            <a href="${pageContext.request.contextPath}/" class="btn btn-secondary">
+                                <i class="fas fa-home"></i> Accueil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <a href="${pageContext.request.contextPath}/register.jsp" class="back-link">Return to Registration Form</a>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html> 

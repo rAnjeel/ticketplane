@@ -60,4 +60,8 @@ public class Utilisateur {
     public void setRole(Role role) {
         this.role = role;
     }
-} 
+
+    public boolean isAdmin() {
+        return this.role.getIdRole() == 1;
+    }
+}
