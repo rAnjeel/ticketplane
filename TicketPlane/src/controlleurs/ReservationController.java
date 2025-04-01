@@ -66,6 +66,43 @@ public class ReservationController {
         return mv;
     }
 
+    @Url("/reservation/mesReservations")
+    public ModelView listeReservationsUtilisateur(MySession session) {
+        ModelView mv = new ModelView("/reservation/liste.jsp");
+        
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            // Récupérer l'utilisateur connecté
+            Utilisateur utilisateur = (Utilisateur) session.get("user");
+            
+            if (utilisateur == null) {
+                // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+                mv.setUrl("/auth/login.jsp");
+                mv.addObject("error", "Veuillez vous connecter pour accéder à vos réservations");
+                return mv;
+            }
+            
+            // Récupérer les réservations de l'utilisateur
+            List<Reservation> reservations = Reservation.getByUtilisateur(conn, utilisateur.getIdUtilisateur());
+            
+            mv.addObject("reservations", reservations);
+            mv.addObject("utilisateur", utilisateur);
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Message d'erreur détaillé
+            String errorMessage = "Erreur lors du chargement des réservations: " + e.getMessage();
+            if (e.getSQLState() != null) {
+                errorMessage += " (Code SQL: " + e.getSQLState() + ")";
+            }
+            if (e.getCause() != null) {
+                errorMessage += ". Cause: " + e.getCause().getMessage();
+            }
+            mv.addObject("error", errorMessage);
+        }
+        
+        return mv;
+    }
+
     @Url("/reservation/create")
     @Post
     public ModelView createReservation(@Param(name = "id_vol") int id_vol,
@@ -110,12 +147,10 @@ public class ReservationController {
                                 
                 conn.commit();
                 
-                // Configuration de la réponse
-                mv.addObject("reservation", reservation);
+                // Configuration de la réponse - Rediriger vers la liste des réservations
                 mv.addObject("message", "Votre réservation a été créée avec succès!");
-                mv.setUrl("/reservation/confirmation.jsp");
+                mv.setUrl("/reservation/mes-reservations");
 
-                
             } catch (SQLException e) {
                 conn.rollback();
                 throw e;
