@@ -65,7 +65,7 @@
             </div>
 
             <form action="${pageContext.request.contextPath}/reservation/create" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="vol" value="${vol.idVol}">
+                <input type="hidden" name="id_vol" value="${vol.idVol}">
                 
                 <div class="form-section">
                     <h4 class="mb-3">Type de siège</h4>
@@ -76,7 +76,7 @@
                                 <div class="card-body">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" 
-                                               name="typeSiege.idType" 
+                                               name="typeSiege_idType" 
                                                value="1"
                                                id="typeEconomique"
                                                data-price="${prixEconomique}"
@@ -105,7 +105,7 @@
                                 <div class="card-body">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" 
-                                               name="typeSiege.idType" 
+                                               name="typeSiege_idType" 
                                                value="2"
                                                id="typeBusiness"
                                                data-price="${prixBusiness}"

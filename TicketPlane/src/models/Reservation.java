@@ -6,10 +6,8 @@ import java.util.UUID;
 import mg.itu.prom16.Annotations.RequestField;
 
 public class Reservation {
-    @RequestField("idReservation")
     private int idReservation;
 
-    @RequestField("dateReservation")
     private String dateReservation;
 
     @RequestField("vol")

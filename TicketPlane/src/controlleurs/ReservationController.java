@@ -1,6 +1,7 @@
 package controlleurs;
 
 import mg.itu.prom16.Annotations.*;
+import mg.itu.prom16.FileParam;
 import mg.itu.prom16.ModelView;
 import mg.itu.prom16.MySession;
 import models.*;
@@ -67,36 +68,54 @@ public class ReservationController {
 
     @Url("/reservation/create")
     @Post
-    public ModelView createReservation(@RequestObject(value = "reservation") Reservation reservation,
-                                     @FileParamName(name = "photoPasseport") String photoPath,
+    public ModelView createReservation(@Param(name = "id_vol") int id_vol,
+                                     @Param(name = "typeSiege_idType") int typeSiege_idType,
+                                     @FileParamName(name = "photoPasseport") FileParam photoPasseport,
                                      MySession session) {
         ModelView mv = new ModelView();
+        Reservation reservation = new Reservation();
+        
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                // Définir l'utilisateur connecté depuis la session
+                // Récupérer les objets à partir des IDs
+                Vol vol = Vol.read(conn, id_vol);
+                TypeSiege typeSiege = TypeSiege.getElementById(conn, typeSiege_idType);
                 Utilisateur utilisateur = (Utilisateur) session.get("user");
+                
+                // Vérifier que les objets existent
+                if (vol == null || typeSiege == null || utilisateur == null) {
+                    throw new SQLException("Données manquantes pour la réservation");
+                }
+                
+                // Définir le statut par défaut (En attente - ID 1)
+                StatutReservation statut = StatutReservation.read(conn, 1);
+                
+                // Calculer le prix total à partir du tarif correspondant
+                TarifVol tarif = TarifVol.getTarifByVolAndType(conn, id_vol, typeSiege_idType);
+                if (tarif == null) {
+                    throw new SQLException("Tarif introuvable pour ce vol et ce type de siège");
+                }
+                
+                // Configuration de l'objet réservation
+                reservation.setVol(vol);
                 reservation.setUtilisateur(utilisateur);
-                
-                // Récupérer le statut par défaut (En attente)
-                StatutReservation statut = StatutReservation.read(conn, 1); // ID 1 = En attente
+                reservation.setTypeSiege(typeSiege);
                 reservation.setStatut(statut);
+                reservation.setPrixTotal(tarif.getPrix());
+                reservation.setPhotoPasseport(photoPasseport.getFileName());
                 
-                // Définir le chemin de la photo dans l'objet reservation
-                reservation.setPhotoPasseport(photoPath);
-                
-                // Créer la réservation
+                // Création de la réservation en base de données
                 reservation.create(conn);
-                
-                // Créer le passager avec la réservation associée
-                PassagerReservation passager = new PassagerReservation();
-                passager.setIdReservation(reservation.getIdReservation());
-                // La photo est déjà stockée dans la réservation, pas besoin de la dupliquer
-                passager.create(conn);
-                
+                                
                 conn.commit();
-                mv.setUrl("/reservation/confirmation.jsp");
+                
+                // Configuration de la réponse
                 mv.addObject("reservation", reservation);
+                mv.addObject("message", "Votre réservation a été créée avec succès!");
+                mv.setUrl("/reservation/confirmation.jsp");
+
+                
             } catch (SQLException e) {
                 conn.rollback();
                 throw e;
@@ -104,8 +123,18 @@ public class ReservationController {
         } catch (SQLException e) {
             e.printStackTrace();
             mv.setUrl("/reservation/form.jsp");
-            mv.addObject("error", "Erreur lors de la création de la réservation: " + e.getMessage());
+            
+            // Message d'erreur détaillé
+            String errorMessage = "Erreur lors de la création de la réservation: " + e.getMessage();
+            if (e.getSQLState() != null) {
+                errorMessage += " (Code SQL: " + e.getSQLState() + ")";
+            }
+            if (e.getCause() != null) {
+                errorMessage += ". Cause: " + e.getCause().getMessage();
+            }
+            mv.addObject("error", errorMessage);
         }
+        
         return mv;
     }
 } 
