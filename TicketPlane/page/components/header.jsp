@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgb(70, 136, 161);">
         <div class="container">
             <a class="navbar-brand" href="${pageContext.request.contextPath}/">
@@ -27,6 +27,11 @@
                             <li>
                                 <a class="dropdown-item" href="${pageContext.request.contextPath}/vol/list">
                                     <i class="fas fa-list me-2"></i>Liste des vols
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="${pageContext.request.contextPath}/reservation/mesReservations">
+                                    <i class="fas fa-list me-2"></i>Mes reservations
                                 </a>
                             </li>
                             <% if(session.getAttribute("user") != null) { %>

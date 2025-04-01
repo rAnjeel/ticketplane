@@ -2,6 +2,8 @@ package models;
 
 import java.sql.*;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 import mg.itu.prom16.Annotations.RequestField;
 
@@ -124,5 +126,38 @@ public class Reservation {
 
     private String generateCode() {
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    public static List<Reservation> getByUtilisateur(Connection conn, int idUtilisateur) throws SQLException {
+        List<Reservation> reservations = new ArrayList<>();
+        String sql = "SELECT * FROM Reservation WHERE id_utilisateur = ? ORDER BY date_reservation DESC";
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idUtilisateur);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Reservation reservation = new Reservation();
+                    // Remplir les propriétés de l'objet Reservation selon votre structure
+                    reservation.setIdReservation(rs.getInt("id_reservation"));
+                    
+                    // Charger les objets associés
+                    Vol vol = Vol.read(conn, rs.getInt("id_vol"));
+                    TypeSiege typeSiege = TypeSiege.getElementById(conn, rs.getInt("id_type_siege"));
+                    StatutReservation statut = StatutReservation.read(conn, rs.getInt("id_statut"));
+                    
+                    reservation.setVol(vol);
+                    reservation.setTypeSiege(typeSiege);
+                    reservation.setStatut(statut);
+                    reservation.setPrixTotal(rs.getDouble("prix_total"));
+                    reservation.setDateReservation(rs.getTimestamp("date_reservation").toString());
+                    reservation.setPhotoPasseport(rs.getString("photo_passeport"));
+                    
+                    reservations.add(reservation);
+                }
+            }
+        }
+        
+        return reservations;
     }
 } 
