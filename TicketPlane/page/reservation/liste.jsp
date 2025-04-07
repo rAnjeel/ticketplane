@@ -4,6 +4,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Mes Réservations - AirBooking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css" rel="stylesheet">
@@ -44,7 +45,7 @@
                                 <h5 class="card-title">
                                     ${reservation.vol.villeDepart.nom} vers ${reservation.vol.villeArrivee.nom}
                                 </h5>
-                                <span class="badge bg-primary">Réservation #${reservation.id}</span>
+                                <span class="badge bg-primary">Réservation #${reservation.idReservation}</span>
                             </div>
                             
                             <div class="row mb-3">
@@ -92,7 +93,7 @@
 
                             <div class="text-end">
                                 <c:if test="${reservation.statut.idStatut == 1}">
-                                    <a href="${pageContext.request.contextPath}/reservation/annuler?id=${reservation.id}" 
+                                    <a href="${pageContext.request.contextPath}/reservation/annuler?idReservation=${reservation.idReservation}" 
                                        class="btn btn-outline-danger btn-sm me-2" 
                                        onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
                                         <i class="fas fa-times"></i> Annuler

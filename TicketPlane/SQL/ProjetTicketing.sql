@@ -96,6 +96,8 @@ CREATE TABLE Reservation(
    prix_total DECIMAL(10, 2) NOT NULL,
    code_reservation VARCHAR(10) NOT NULL,
    photo_passeport VARCHAR(255) NOT NULL,
+   est_enfant BOOLEAN DEFAULT FALSE,
+   est_promotion BOOLEAN DEFAULT FALSE,
    PRIMARY KEY(id_reservation),
    FOREIGN KEY(id_vol) REFERENCES Vol(id_vol),
    FOREIGN KEY(id_utilisateur) REFERENCES Utilisateur(id_utilisateur),
@@ -111,13 +113,13 @@ CREATE TABLE parametres_systeme (
    description TEXT,
    date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 -- Ajouter les nouveaux paramètres système
 INSERT INTO parametres_systeme (code, valeur, description) VALUES  
     ('AGE_MAX_ENFANT', '12', 'Age max enfant'),  
     ('NB_SIEGES_PROMO', '10', 'Nb sieges promo par vol'),  
     ('TAUX_REDUCTION_ENFANT', '50', 'Reduction enfant (%)'),  
     ('TAUX_REDUCTION_PROMO', '25', 'Reduction promo (%)');  
+
 
 -- Insertion des statuts de réservation de base
 INSERT INTO StatutReservation (nom)
