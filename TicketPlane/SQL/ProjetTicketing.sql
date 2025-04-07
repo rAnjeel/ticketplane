@@ -1,7 +1,9 @@
 -- Création de la base de données
-CREATE DATABASE ticketing;
+CREATE DATABASE ticketing WITH ENCODING 'UTF8';
 -- Se connecter à la base de données
-\ c ticketing CREATE TABLE Role(
+\c ticketing 
+
+CREATE TABLE Role(
    id_role SERIAL,
    nom VARCHAR(150) NOT NULL,
    PRIMARY KEY(id_role)
@@ -44,6 +46,7 @@ CREATE TABLE Utilisateur(
    UNIQUE(email),
    FOREIGN KEY(id_role) REFERENCES Role(id_role)
 );
+
 CREATE TABLE Avion(
    id_avion SERIAL,
    immatriculation INTEGER NOT NULL,
@@ -55,6 +58,7 @@ CREATE TABLE Avion(
    FOREIGN KEY(id_ville_base) REFERENCES VilleDesservie(id_ville),
    FOREIGN KEY(id_modele) REFERENCES Modele(id_modele)
 );
+
 CREATE TABLE AvionTypeSiege(
    id_avion INTEGER,
    id_type INTEGER,
@@ -63,13 +67,7 @@ CREATE TABLE AvionTypeSiege(
    FOREIGN KEY(id_avion) REFERENCES Avion(id_avion),
    FOREIGN KEY(id_type) REFERENCES TypeSiege(id_type)
 );
-CREATE TABLE PassagersVol(
-   id_utilisateur INTEGER,
-   id_vol INTEGER,
-   PRIMARY KEY(id_utilisateur, id_vol),
-   FOREIGN KEY(id_utilisateur) REFERENCES Utilisateur(id_utilisateur),
-   FOREIGN KEY(id_vol) REFERENCES Vol(id_vol)
-);
+
 -- Table pour les tarifs selon le type de siège
 CREATE TABLE TarifVol(
    id_tarif SERIAL,
@@ -106,8 +104,21 @@ CREATE TABLE Reservation(
    UNIQUE(code_reservation)
 );
 
--- Suppression de l'ancienne table PassagersVol
-DROP TABLE IF EXISTS PassagersVol;
+CREATE TABLE parametres_systeme (
+   id SERIAL PRIMARY KEY,
+   code VARCHAR(50) NOT NULL UNIQUE,
+   valeur VARCHAR(255) NOT NULL,
+   description TEXT,
+   date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Ajouter les nouveaux paramètres système
+INSERT INTO parametres_systeme (code, valeur, description) VALUES  
+    ('AGE_MAX_ENFANT', '12', 'Age max enfant'),  
+    ('NB_SIEGES_PROMO', '10', 'Nb sieges promo par vol'),  
+    ('TAUX_REDUCTION_ENFANT', '50', 'Reduction enfant (%)'),  
+    ('TAUX_REDUCTION_PROMO', '25', 'Reduction promo (%)');  
+
 -- Insertion des statuts de réservation de base
 INSERT INTO StatutReservation (nom)
 VALUES ('Confirme'),
@@ -121,6 +132,7 @@ ADD COLUMN places_economique INTEGER DEFAULT 0,
    ADD COLUMN places_premiere INTEGER DEFAULT 0,
    ADD COLUMN id_avion INTEGER NOT NULL,
    ADD FOREIGN KEY(id_avion) REFERENCES Avion(id_avion);
+
 -- Index pour améliorer les performances
 CREATE INDEX idx_reservation_vol ON Reservation(id_vol);
 CREATE INDEX idx_reservation_utilisateur ON Reservation(id_utilisateur);

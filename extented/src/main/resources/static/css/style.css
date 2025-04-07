@@ -1,0 +1,39 @@
+/* Styles généraux */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Styles du header */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.nav-item {
+    margin-right: 15px;
+}
+
+.nav-link {
+    font-size: 1.1rem;
+}
+
+.nav-link.active {
+    font-weight: bold;
+}
+
+/* Hero section */
+.hero {
+    padding: 80px 0;
+    background-color: #f8f9fa;
+    margin-bottom: 30px;
+}
+
+/* Cards */
+.card {
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+} 
