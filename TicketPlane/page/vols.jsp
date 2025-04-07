@@ -97,6 +97,22 @@
                             </div>
                             
                             <div class="mb-3">
+                                <p class="mb-1"><strong>Avion:</strong></p>
+                                <p class="mb-0">
+                                    <i class="fas fa-plane"></i> ${vol.avion.modele.nom} 
+                                    <span class="text-muted">(Immatriculation: ${vol.avion.immatriculation})</span>
+                                </p>
+                                <div class="d-flex mt-1">
+                                    <span class="badge bg-success me-2">
+                                        <i class="fas fa-chair"></i> Business: ${vol.avion.siegeBusiness} sièges
+                                    </span>
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-chair"></i> Économique: ${vol.avion.siegeEconomique} sièges
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
                                 <p class="mb-1"><strong>Tarifs disponibles:</strong></p>
                                 <div class="d-flex flex-wrap">
                                     <c:forEach items="${vol.tarifs}" var="tarif">

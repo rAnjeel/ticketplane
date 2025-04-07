@@ -75,6 +75,20 @@
 
             <div class="row mb-3">
                 <div class="col-md-6">
+                    <label for="avion" class="form-label">Avion</label>
+                    <select name="avion.id_avion" id="avion" class="form-select" required>
+                        <option value="">Sélectionnez un avion</option>
+                        <c:forEach items="${avions}" var="avion">
+                            <option value="${avion.idAvion}">
+                                ${avion.modele.nom} (Immatriculation: ${avion.immatriculation})
+                            </option>
+                        </c:forEach>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
                     <label for="dateDepart" class="form-label">Date et heure de départ</label>
                     <input type="text" class="form-control datetimepicker" id="dateDepart" 
                            name="vol.date_depart" value="<%= formData != null ? formData.getDateDepart() : "" %>" required>

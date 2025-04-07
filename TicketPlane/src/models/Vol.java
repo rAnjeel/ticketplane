@@ -29,6 +29,10 @@ public class Vol {
     @RequestField("ville_arrivee")
     @FormField(name = "ville_arrivee")
     private VilleDesservie villeArrivee;
+    
+    @RequestField("avion")
+    @FormField(name = "avion")
+    private Avion avion;
 
     private List<TarifVol> tarifs;
 
@@ -37,12 +41,13 @@ public class Vol {
 
     // Constructeur complet
     public Vol(int idVol, String dateDepart, String dateArrivee, 
-               VilleDesservie villeDepart, VilleDesservie villeArrivee) {
+               VilleDesservie villeDepart, VilleDesservie villeArrivee, Avion avion) {
         this.idVol = idVol;
         this.dateDepart = dateDepart;
         this.dateArrivee = dateArrivee;
         this.villeDepart = villeDepart;
         this.villeArrivee = villeArrivee;
+        this.avion = avion;
     }
 
     // Getters et Setters
@@ -86,6 +91,14 @@ public class Vol {
         this.villeArrivee = villeArrivee;
     }
 
+    public Avion getAvion() {
+        return avion;
+    }
+
+    public void setAvion(Avion avion) {
+        this.avion = avion;
+    }
+
     public List<TarifVol> getTarifs() {
         return tarifs;
     }
@@ -110,13 +123,14 @@ public class Vol {
 
     // Méthodes CRUD
     public void create(Connection conn) throws SQLException {
-        String sql = "INSERT INTO Vol (date_depart, date_arrivee, id_ville_depart, id_ville_arrivee) " +
-                    "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Vol (date_depart, date_arrivee, id_ville_depart, id_ville_arrivee, id_avion) " +
+                    "VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setTimestamp(1, parseTimestamp(dateDepart));
             pstmt.setTimestamp(2, parseTimestamp(dateArrivee));
             pstmt.setInt(3, villeDepart.getIdVille());
             pstmt.setInt(4, villeArrivee.getIdVille());
+            pstmt.setInt(5, avion.getIdAvion());
             pstmt.executeUpdate();
             
             ResultSet rs = pstmt.getGeneratedKeys();
@@ -138,7 +152,8 @@ public class Vol {
                     rs.getTimestamp("date_depart").toString(),
                     rs.getTimestamp("date_arrivee").toString(),
                     VilleDesservie.read(conn, rs.getInt("id_ville_depart")),
-                    VilleDesservie.read(conn, rs.getInt("id_ville_arrivee"))
+                    VilleDesservie.read(conn, rs.getInt("id_ville_arrivee")),
+                    Avion.read(conn, rs.getInt("id_avion"))
                 );
             }
         }
@@ -147,13 +162,14 @@ public class Vol {
 
     public void update(Connection conn) throws SQLException {
         String sql = "UPDATE Vol SET date_depart = ?, date_arrivee = ?, " +
-                    "id_ville_depart = ?, id_ville_arrivee = ? WHERE id_vol = ?";
+                    "id_ville_depart = ?, id_ville_arrivee = ?, id_avion = ? WHERE id_vol = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setTimestamp(1, parseTimestamp(dateDepart));
             pstmt.setTimestamp(2, parseTimestamp(dateArrivee));
             pstmt.setInt(3, villeDepart.getIdVille());
             pstmt.setInt(4, villeArrivee.getIdVille());
-            pstmt.setInt(5, idVol);
+            pstmt.setInt(5, avion.getIdAvion());
+            pstmt.setInt(6, idVol);
             pstmt.executeUpdate();
         }
     }
@@ -177,7 +193,8 @@ public class Vol {
                     rs.getTimestamp("date_depart").toString(),
                     rs.getTimestamp("date_arrivee").toString(),
                     VilleDesservie.read(conn, rs.getInt("id_ville_depart")),
-                    VilleDesservie.read(conn, rs.getInt("id_ville_arrivee"))
+                    VilleDesservie.read(conn, rs.getInt("id_ville_arrivee")),
+                    Avion.read(conn, rs.getInt("id_avion"))
                 );
                 vols.add(vol);
             }
@@ -222,7 +239,8 @@ public class Vol {
                     rs.getTimestamp("date_depart").toString(),
                     rs.getTimestamp("date_arrivee").toString(),
                     VilleDesservie.read(conn, rs.getInt("id_ville_depart")),
-                    VilleDesservie.read(conn, rs.getInt("id_ville_arrivee"))
+                    VilleDesservie.read(conn, rs.getInt("id_ville_arrivee")),
+                    Avion.read(conn, rs.getInt("id_avion"))
                 );
                 vols.add(vol);
             }
