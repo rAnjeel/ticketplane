@@ -1,3 +1,25 @@
+-- Insertion des modèles d'avions
+INSERT INTO Modele (nom) VALUES 
+    ('Boeing 737-800'),
+    ('Airbus A320'),
+    ('Airbus A350-900'),
+    ('Boeing 787-9'),
+    ('Airbus A330-300'),
+    ('Embraer E190');
+
+-- Insertion des avions
+-- Note: Les immatriculations suivent le format numérique comme défini dans la table
+-- Les dates de fabrication sont réalistes pour chaque type d'avion
+INSERT INTO Avion (immatriculation, date_fabrication, id_modele, siege_economique, siege_business) VALUES 
+    (101234, '2018-03-15', 1, 100, 30),
+    (101235, '2019-06-22', 2, 100, 20),
+    (101236, '2020-01-10', 1, 100, 30),
+    (101237, '2017-11-30', 3, 100, 22),
+    (101238, '2019-09-05', 2, 100, 20),
+    (101239, '2021-04-18', 3, 100, 22),
+    (101240, '2022-02-28', 1, 100, 30),
+    (101241, '2020-07-14', 2, 100, 20);
+
 -- ROLE
 INSERT INTO Role (nom)
 VALUES ('ADMIN');

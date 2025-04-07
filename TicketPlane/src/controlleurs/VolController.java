@@ -6,6 +6,7 @@ import models.Vol;
 import models.VilleDesservie;
 import models.TarifVol;
 import models.TypeSiege;
+import models.Avion;
 import config.DatabaseConnection;
 
 import java.sql.Connection;
@@ -22,9 +23,11 @@ public class VolController {
         try (Connection conn = DatabaseConnection.getConnection()) {
             List<VilleDesservie> villes = VilleDesservie.getAll(conn);
             List<TypeSiege> typesSiege = TypeSiege.getAll(conn);
+            List<Avion> avions = Avion.getAll(conn);
             
             mv.addObject("villes", villes);
             mv.addObject("typesSiege", typesSiege);
+            mv.addObject("avions", avions);
         } catch (SQLException e) {
             e.printStackTrace();
             mv.addObject("error", "Erreur lors du chargement des données: " + e.getMessage());
@@ -38,6 +41,7 @@ public class VolController {
     public ModelView insertVol(@RequestObject(value = "vol") Vol vol, 
                               @RequestObject(value = "ville_depart") VilleDesservie villeDepart, 
                               @RequestObject(value = "ville_arrivee") VilleDesservie villeArrivee,
+                              @RequestObject(value = "avion") Avion avion,
                               @RequestObject(value = "tarif_business") TarifVol tarifBusiness,
                               @RequestObject(value = "tarif_economique") TarifVol tarifEconomique) {
         ModelView mv = new ModelView();
@@ -47,15 +51,17 @@ public class VolController {
                 // Récupérer les villes complètes à partir des IDs
                 villeDepart = VilleDesservie.read(conn, villeDepart.getIdVille());
                 villeArrivee = VilleDesservie.read(conn, villeArrivee.getIdVille());
+                avion = Avion.read(conn, avion.getIdAvion());
                 
-                // Vérification que les villes existent
-                if (villeDepart == null || villeArrivee == null) {
-                    throw new SQLException("Une des villes sélectionnées n'existe pas");
+                // Vérification que les entités existent
+                if (villeDepart == null || villeArrivee == null || avion == null) {
+                    throw new SQLException("Une des entités sélectionnées n'existe pas");
                 }
                 
                 // Mettre à jour les objets complets
                 vol.setVilleDepart(villeDepart);
                 vol.setVilleArrivee(villeArrivee);
+                vol.setAvion(avion);
                 
                 // Sauvegarder le vol
                 vol.create(conn);
@@ -118,6 +124,7 @@ public class VolController {
             List<Vol> vols = Vol.getAll(conn);
             List<VilleDesservie> villes = VilleDesservie.getAll(conn);
             List<TypeSiege> typesSiege = TypeSiege.getAll(conn);
+            List<Avion> avions = Avion.getAll(conn);
             
             // Récupérer les tarifs pour chaque vol
             for (Vol vol : vols) {
@@ -127,6 +134,7 @@ public class VolController {
             mv.addObject("vols", vols);
             mv.addObject("villes", villes);
             mv.addObject("typesSiege", typesSiege);
+            mv.addObject("avions", avions);
         } catch (SQLException e) {
             e.printStackTrace();
             mv.addObject("error", "Erreur lors de la récupération des vols: " + e.getMessage());

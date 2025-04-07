@@ -8,7 +8,7 @@ import java.sql.Date;
 import mg.itu.prom16.Annotations.RequestField;
 
 public class Avion {
-    @RequestField("idAvion")
+    @RequestField("id_avion")
     private int idAvion;
 
     @RequestField("immatriculation")
@@ -17,21 +17,25 @@ public class Avion {
     @RequestField("date_fabrication")
     private Date dateFabrication;
 
-    @RequestField("ville_base")
-    private VilleDesservie villeBase;
-
     @RequestField("modele")
     private Modele modele;
+
+    @RequestField("siege_economique")
+    private int siegeEconomique;
+
+    @RequestField("siege_business")
+    private int siegeBusiness;
 
     // Constructeur
     public Avion() {}
     
-    public Avion(int idAvion, int immatriculation, Date dateFabrication, VilleDesservie villeBase, Modele modele) {
+    public Avion(int idAvion, int immatriculation, Date dateFabrication, Modele modele, int siegeEconomique, int siegeBusiness) {
         this.idAvion = idAvion;
         this.immatriculation = immatriculation;
         this.dateFabrication = dateFabrication;
-        this.villeBase = villeBase;
         this.modele = modele;
+        this.siegeEconomique = siegeEconomique;
+        this.siegeBusiness = siegeBusiness;
     }
 
     // Getters et Setters
@@ -59,14 +63,6 @@ public class Avion {
         this.dateFabrication = dateFabrication;
     }
 
-    public VilleDesservie getVilleBase() {
-        return villeBase;
-    }
-
-    public void setVilleBase(VilleDesservie villeBase) {
-        this.villeBase = villeBase;
-    }
-
     public Modele getModele() {
         return modele;
     }
@@ -75,14 +71,31 @@ public class Avion {
         this.modele = modele;
     }
 
+    public int getSiegeEconomique() {
+        return siegeEconomique;
+    }
+
+    public void setSiegeEconomique(int siegeEconomique) {
+        this.siegeEconomique = siegeEconomique;
+    }
+
+    public int getSiegeBusiness() {
+        return siegeBusiness;
+    }
+
+    public void setSiegeBusiness(int siegeBusiness) {
+        this.siegeBusiness = siegeBusiness;
+    }
+
     // Méthodes CRUD
     public void create(Connection conn) throws SQLException {
-        String sql = "INSERT INTO Avion (immatriculation, date_fabrication, id_ville_base, id_modele) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Avion (immatriculation, date_fabrication, id_modele, siege_economique, siege_business) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, immatriculation);
             pstmt.setDate(2, dateFabrication);
-            pstmt.setInt(3, villeBase.getIdVille());
-            pstmt.setInt(4, modele.getIdModele());
+            pstmt.setInt(3, modele.getIdModele());
+            pstmt.setInt(4, siegeEconomique);
+            pstmt.setInt(5, siegeBusiness);
             pstmt.executeUpdate();
             
             ResultSet rs = pstmt.getGeneratedKeys();
@@ -99,28 +112,28 @@ public class Avion {
             ResultSet rs = pstmt.executeQuery();
             
             if (rs.next()) {
-                Avion avion = new Avion(
+                return new Avion(
                     rs.getInt("id_avion"),
                     rs.getInt("immatriculation"),
                     rs.getDate("date_fabrication"),
-                    VilleDesservie.read(conn, rs.getInt("id_ville_base")),
-                    Modele.read(conn, rs.getInt("id_modele"))
+                    Modele.read(conn, rs.getInt("id_modele")),
+                    rs.getInt("siege_economique"),
+                    rs.getInt("siege_business")
                 );
-                avion.setIdAvion(rs.getInt("id_avion"));
-                return avion;
             }
         }
         return null;
     }
 
     public void update(Connection conn) throws SQLException {
-        String sql = "UPDATE Avion SET immatriculation = ?, date_fabrication = ?, id_ville_base = ?, id_modele = ? WHERE id_avion = ?";
+        String sql = "UPDATE Avion SET immatriculation = ?, date_fabrication = ?, id_ville_base = ?, id_modele = ?, siege_economique = ?, siege_business = ? WHERE id_avion = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, immatriculation);
             pstmt.setDate(2, dateFabrication);
-            pstmt.setInt(3, villeBase.getIdVille());
-            pstmt.setInt(4, modele.getIdModele());
-            pstmt.setInt(5, idAvion);
+            pstmt.setInt(3, modele.getIdModele());
+            pstmt.setInt(4, siegeEconomique);
+            pstmt.setInt(5, siegeBusiness);
+            pstmt.setInt(6, idAvion);
             pstmt.executeUpdate();
         }
     }
@@ -143,10 +156,10 @@ public class Avion {
                     rs.getInt("id_avion"),
                     rs.getInt("immatriculation"),
                     rs.getDate("date_fabrication"),
-                    VilleDesservie.read(conn, rs.getInt("id_ville_base")),
-                    Modele.read(conn, rs.getInt("id_modele"))
+                    Modele.read(conn, rs.getInt("id_modele")),
+                    rs.getInt("siege_economique"),
+                    rs.getInt("siege_business")
                 );
-                avion.setIdAvion(rs.getInt("id_avion"));
                 avions.add(avion);
             }
         }
