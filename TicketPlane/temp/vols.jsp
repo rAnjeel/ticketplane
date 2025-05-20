@@ -14,7 +14,7 @@
     
     <div class="container mt-5">
         <h2 class="mb-4">
-            <i class="fas fa-plane"></i> Vols disponibles
+            <i class="fas fa-plane"></i> Vols disponibles 
         </h2>
 
         <div class="row mb-4">
@@ -73,72 +73,73 @@
 
         <div class="row">
             <c:forEach items="${vols}" var="vol">
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="card-title">
-                                    ${vol.villeDepart.nom} vers ${vol.villeArrivee.nom}
-                                </h5>
-                                <span class="badge bg-primary">Vol ${vol.idVol}</span>
-                            </div>
-                            
-                            <div class="row mb-3">
-                                <div class="col-6">
-                                    <p class="mb-1"><strong>Départ:</strong></p>
-                                    <p class="mb-0">${vol.villeDepart.nom} (${vol.villeDepart.pays})</p>
-                                    <p class="text-muted">${vol.dateDepart}</p>
+                <c:if test="${vol.dateDepart >= nowPlus48h}">
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="card-title">
+                                        ${vol.villeDepart.nom} vers ${vol.villeArrivee.nom}
+                                    </h5>
+                                    <span class="badge bg-primary">Vol ${vol.idVol}</span>
                                 </div>
-                                <div class="col-6">
-                                    <p class="mb-1"><strong>Arrivée:</strong></p>
-                                    <p class="mb-0">${vol.villeArrivee.nom} (${vol.villeArrivee.pays})</p>
-                                    <p class="text-muted">${vol.dateArrivee}</p>
+                    
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <p class="mb-1"><strong>Départ:</strong></p>
+                                        <p class="mb-0">${vol.villeDepart.nom} (${vol.villeDepart.pays})</p>
+                                        <p class="text-muted">${vol.dateDepart}</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="mb-1"><strong>Arrivée:</strong></p>
+                                        <p class="mb-0">${vol.villeArrivee.nom} (${vol.villeArrivee.pays})</p>
+                                        <p class="text-muted">${vol.dateArrivee}</p>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <p class="mb-1"><strong>Avion:</strong></p>
-                                <p class="mb-0">
-                                    <i class="fas fa-plane"></i> ${vol.avion.modele.nom} 
-                                    <span class="text-muted">(Immatriculation: ${vol.avion.immatriculation})</span>
-                                </p>
-                                <div class="d-flex mt-1">
-                                    <span class="badge bg-success me-2">
-                                        <i class="fas fa-chair"></i> Business: ${vol.avion.siegeBusiness} sièges
-                                    </span>
-                                    <span class="badge bg-warning text-dark">
-                                        <i class="fas fa-chair"></i> Économique: ${vol.avion.siegeEconomique} sièges
-                                    </span>
+                    
+                                <div class="mb-3">
+                                    <p class="mb-1"><strong>Avion:</strong></p>
+                                    <p class="mb-0">
+                                        <i class="fas fa-plane"></i> ${vol.avion.modele.nom}
+                                        <span class="text-muted">(Immatriculation: ${vol.avion.immatriculation})</span>
+                                    </p>
+                                    <div class="d-flex mt-1">
+                                        <span class="badge bg-success me-2">
+                                            <i class="fas fa-chair"></i> Business: ${vol.avion.siegeBusiness} sièges
+                                        </span>
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-chair"></i> Économique: ${vol.avion.siegeEconomique} sièges
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <p class="mb-1"><strong>Tarifs disponibles:</strong></p>
-                                <div class="d-flex flex-wrap">
-                                    <c:forEach items="${vol.tarifs}" var="tarif">
-                                        <div class="me-3 mb-2">
-                                            <span class="badge bg-info text-dark">
-                                                <c:forEach items="${typesSiege}" var="type">
-                                                    <c:if test="${type.idType == tarif.idTypeSiege}">
-                                                        ${type.nom}
-                                                    </c:if>
-                                                </c:forEach>
-                                                : ${tarif.prix} Ar
-                                            </span>
-                                        </div>
-                                    </c:forEach>
+                    
+                                <div class="mb-3">
+                                    <p class="mb-1"><strong>Tarifs disponibles:</strong></p>
+                                    <div class="d-flex flex-wrap">
+                                        <c:forEach items="${vol.tarifs}" var="tarif">
+                                            <div class="me-3 mb-2">
+                                                <span class="badge bg-info text-dark">
+                                                    <c:forEach items="${typesSiege}" var="type">
+                                                        <c:if test="${type.idType == tarif.idTypeSiege}">
+                                                            ${type.nom}
+                                                        </c:if>
+                                                    </c:forEach>
+                                                    : ${tarif.prix} Ar
+                                                </span>
+                                            </div>
+                                        </c:forEach>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="text-end">
-                                <a href="${pageContext.request.contextPath}/reservation/vol?id=${vol.idVol}" 
-                                   class="btn btn-primary">
-                                    <i class="fas fa-ticket-alt"></i> Réserver
-                                </a>
+                    
+                                <div class="text-end">
+                                    <a href="${pageContext.request.contextPath}/reservation/vol?id=${vol.idVol}" class="btn btn-primary">
+                                        <i class="fas fa-ticket-alt"></i> Réserver
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </c:if>
             </c:forEach>
         </div>
     </div>

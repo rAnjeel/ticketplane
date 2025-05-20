@@ -32,8 +32,8 @@ public class ReservationController {
             Double prixBusiness = null;
             
             // IDs des types de sièges (1: Économique, 2: Business) - à ajuster selon votre structure de données
-            final int ID_ECONOMIQUE = 1;
-            final int ID_BUSINESS = 2;
+            final int ID_ECONOMIQUE = 2;
+            final int ID_BUSINESS = 1;
             
             for (TarifVol tarif : tarifs) {
                 int idType = tarif.getIdTypeSiege();
@@ -47,6 +47,8 @@ public class ReservationController {
             mv.addObject("vol", vol);
             mv.addObject("prixEconomique", prixEconomique);
             mv.addObject("prixBusiness", prixBusiness);
+            mv.addObject("tauxReductionEnfant", ParametreSysteme.getTauxReductionEnfant(conn));
+            mv.addObject("ageMaxEnfant", ParametreSysteme.getAgeMaxEnfant(conn));
         } catch (SQLException e) {
             e.printStackTrace();
             // Message d'erreur plus détaillé
@@ -109,66 +111,64 @@ public class ReservationController {
     @Post
     public ModelView createReservation(@Param(name = "id_vol") int id_vol,
                                      @Param(name = "typeSiege_idType") int typeSiege_idType,
+                                     @Param(name = "nbAdultes") int nbAdultes,
+                                     @Param(name = "nbEnfants") int nbEnfants,
                                      @FileParamName(name = "photoPasseport") FileParam photoPasseport,
                                      MySession session) {
         ModelView mv = new ModelView();
-        Reservation reservation = new Reservation();
-        
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
-            // Récupérer les objets à partir des IDs
             Vol vol = Vol.read(conn, id_vol);
             TypeSiege typeSiege = TypeSiege.getElementById(conn, typeSiege_idType);
             Utilisateur utilisateur = (Utilisateur) session.get("user");
-            
-            // Vérifier que les objets existent
             if (vol == null || typeSiege == null || utilisateur == null) {
                 throw new SQLException("Données manquantes pour la réservation");
             }
-            
-            // Vérifier le délai avant vol pour la réservation
             int heuresAvantVolReservation = ParametreSysteme.getHeuresAvantVolReservation(conn);
             Timestamp dateDepart = Timestamp.valueOf(vol.getDateDepart());
             Timestamp maintenant = new Timestamp(System.currentTimeMillis());
-            
-            // Calculer la différence en heures
             long differenceEnMillis = dateDepart.getTime() - maintenant.getTime();
             long differenceEnHeures = differenceEnMillis / (1000 * 60 * 60);
-            
             if (differenceEnHeures < heuresAvantVolReservation) {
                 throw new SQLException("Impossible de reserver ce vol. La reservation doit être effectuee au moins " + 
                                         heuresAvantVolReservation + " heures avant le depart.");
             }
-            
-            // Définir le statut par défaut (En attente - ID 1)
             StatutReservation statut = StatutReservation.read(conn, 1);
-            
-            // Calculer le prix total à partir du tarif correspondant
             TarifVol tarif = TarifVol.getTarifByVolAndType(conn, id_vol, typeSiege_idType);
             if (tarif == null) {
                 throw new SQLException("Tarif introuvable pour ce vol et ce type de siège");
             }
-            
-            // Configuration de l'objet réservation
-            reservation.setVol(vol);
-            reservation.setUtilisateur(utilisateur);
-            reservation.setTypeSiege(typeSiege);
-            reservation.setStatut(statut);
-            reservation.setPrixTotal(tarif.getPrix());
-            reservation.setPhotoPasseport(photoPasseport.getFileName());
-            
-            // Création de la réservation en base de données
-            reservation.create(conn);
-                            
+            int tauxReductionEnfant = ParametreSysteme.getTauxReductionEnfant(conn);
+            // Réservations adultes
+            for (int i = 0; i < nbAdultes; i++) {
+                Reservation reservation = new Reservation();
+                reservation.setVol(vol);
+                reservation.setUtilisateur(utilisateur);
+                reservation.setTypeSiege(typeSiege);
+                reservation.setStatut(statut);
+                reservation.setPrixTotal(tarif.getPrix());
+                reservation.setPhotoPasseport(photoPasseport.getFileName());
+                reservation.setEstEnfant(false);
+                reservation.create(conn);
+            }
+            // Réservations enfants
+            for (int i = 0; i < nbEnfants; i++) {
+                Reservation reservation = new Reservation();
+                reservation.setVol(vol);
+                reservation.setUtilisateur(utilisateur);
+                reservation.setTypeSiege(typeSiege);
+                reservation.setStatut(statut);
+                double prixEnfant = tarif.getPrix() * (1 - tauxReductionEnfant / 100.0);
+                reservation.setPrixTotal(prixEnfant);
+                reservation.setPhotoPasseport(photoPasseport.getFileName());
+                reservation.setEstEnfant(true);
+                reservation.create(conn);
+            }
             conn.commit();
-            
-            // Configuration de la réponse - Rediriger vers la liste des réservations
             mv.addObject("message", "Votre réservation a été créée avec succès!");
             mv.setUrl("/reservation/mesReservations");
         } catch (SQLException e) {
             e.printStackTrace();
-            
-            // Message d'erreur détaillé
             String errorMessage = "Erreur lors de la création de la réservation: " + e.getMessage();
             if (e.getSQLState() != null) {
                 errorMessage += " (Code SQL: " + e.getSQLState() + ")";
@@ -179,7 +179,6 @@ public class ReservationController {
             mv.addObject("error", errorMessage);
             mv.setUrl("/error.jsp");
         }
-        
         return mv;
     }
 

@@ -1,0 +1,6 @@
+Objectif:  Fonctionnalite dans plusieurs services
+
+WEBSERVICE :  miantso id reservation de mitelecharge en format pdf (miantso web service pour le telechargement pdf)
+
+NB: regarder standart webservice , ca doit suivre  JSON Responde
+Rehefa vita de asina token ou formulaire de validation
