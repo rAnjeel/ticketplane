@@ -30,6 +30,8 @@ public class Reservation {
     @RequestField("photoPasseport")
     private String photoPasseport;
 
+    private boolean estEnfant;
+
     public int getIdReservation() {
         return idReservation;
     }
@@ -102,10 +104,18 @@ public class Reservation {
         this.photoPasseport = photoPasseport;
     }
 
+    public boolean isEstEnfant() {
+        return estEnfant;
+    }
+
+    public void setEstEnfant(boolean estEnfant) {
+        this.estEnfant = estEnfant;
+    }
+
     public void create(Connection conn) throws SQLException {
         String sql = "INSERT INTO Reservation (date_reservation, id_vol, id_utilisateur, " +
-                    "id_statut, id_type_siege, prix_total, code_reservation, photo_passeport) " +
-                    "VALUES (CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?)";
+                    "id_statut, id_type_siege, prix_total, code_reservation, photo_passeport, est_enfant) " +
+                    "VALUES (CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             this.codeReservation = generateCode();
             pstmt.setInt(1, vol.getIdVol());
@@ -115,6 +125,7 @@ public class Reservation {
             pstmt.setDouble(5, prixTotal);
             pstmt.setString(6, codeReservation);
             pstmt.setString(7, photoPasseport);
+            pstmt.setBoolean(8, estEnfant);
             pstmt.executeUpdate();
             
             ResultSet rs = pstmt.getGeneratedKeys();

@@ -1,0 +1,37 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Framework Rules
+
+## Framework Location
+- Framework JAR: `lib/Framework.jar`
+
+## Framework Usage Rules
+1. All new code must use the framework classes and methods from `lib/Framework.jar`
+2. Do not create new classes that duplicate framework functionality
+3. Follow the framework's design patterns and conventions
+4. Use framework's built-in utilities instead of creating custom solutions
+5. Maintain consistency with existing framework usage in the codebase
+
+## Framework Dependencies
+- All projects must include `lib/Framework.jar` in their classpath
+- Framework version must be specified in project configuration files
+
+## Code Style
+- Follow framework's naming conventions
+- Use framework's logging system
+- Implement framework interfaces when required
+- Use framework's configuration system
+
+## Best Practices
+- Document framework usage in code comments
+- Keep framework dependencies up to date
+- Report framework issues through proper channels
+- Test code against framework requirements
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to

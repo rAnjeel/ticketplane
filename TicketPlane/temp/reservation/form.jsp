@@ -134,6 +134,33 @@
                 </div>
 
                 <div class="form-section">
+                    <h4 class="mb-3">Informations passagers</h4>
+                    
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Réduction enfant:</strong> Un enfant est âgé de moins de ${ageMaxEnfant} ans 
+                        et bénéficie d'une réduction de ${tauxReductionEnfant}% sur le prix du billet.
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nbAdultes" class="form-label">Nombre d'adultes</label>
+                            <input type="number" class="form-control" id="nbAdultes" name="nbAdultes" 
+                                   min="1" value="1" required onchange="calculerPrixTotal()">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="nbEnfants" class="form-label">Nombre d'enfants</label>
+                            <input type="number" class="form-control" id="nbEnfants" name="nbEnfants" 
+                                   min="0" value="0" required onchange="calculerPrixTotal()">
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-success mt-2" id="resumePrix">
+                        <strong>Prix total: <span id="affichagePrixTotal">0</span> Ar</strong>
+                    </div>
+                </div>
+
+                <div class="form-section">
                     <h4 class="mb-3">Documents du passager</h4>
                     <div class="mb-3">
                         <label for="photoPasseport" class="form-label">Photo du passeport</label>
@@ -157,19 +184,57 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        let prixBase = 0;
+        const tauxReduction = parseInt("${tauxReductionEnfant}") || 0;
+
         function updatePrice(price) {
-            document.getElementById('prixTotal').value = parseFloat(price);
+            prixBase = parseFloat(price);
+            calculerPrixTotal();
         }
         
         function selectCard(type) {
-            // Enlever la classe "selected" de toutes les cartes
             document.querySelectorAll('.seat-card').forEach(card => {
                 card.classList.remove('selected');
             });
-            
-            // Ajouter la classe "selected" à la carte sélectionnée
             document.getElementById('card-' + type).classList.add('selected');
         }
+        
+        function calculerPrixTotal() {
+            const nbAdultes = parseInt(document.getElementById('nbAdultes').value) || 0;
+            const nbEnfants = parseInt(document.getElementById('nbEnfants').value) || 0;
+
+            if (!prixBase || prixBase === 0) {
+                document.getElementById('affichagePrixTotal').textContent = '0.00';
+                document.getElementById('prixTotal').value = '0.00';
+                return;
+            }
+
+            const prixAdultes = prixBase * nbAdultes;
+            const prixEnfants = prixBase * nbEnfants * (1 - tauxReduction/100);
+            const prixTotal = prixAdultes + prixEnfants;
+
+            document.getElementById('affichagePrixTotal').textContent = prixTotal.toLocaleString('fr-FR', {minimumFractionDigits: 2});
+            document.getElementById('prixTotal').value = prixTotal.toFixed(2);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser le prix de base
+            const selectedType = document.querySelector('input[name="typeSiege_idType"]:checked');
+            if (selectedType) {
+                prixBase = parseFloat(selectedType.dataset.price);
+                calculerPrixTotal();
+            }
+            
+            // Ajouter les écouteurs d'événements
+            document.querySelectorAll('input[name="typeSiege_idType"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updatePrice(this.dataset.price);
+                });
+            });
+            
+            document.getElementById('nbAdultes').addEventListener('change', calculerPrixTotal);
+            document.getElementById('nbEnfants').addEventListener('change', calculerPrixTotal);
+        });
     </script>
 </body>
 </html> 

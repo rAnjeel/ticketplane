@@ -13,6 +13,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import java.util.List;
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Controller
 public class VolController {
@@ -125,8 +127,7 @@ public class VolController {
             List<VilleDesservie> villes = VilleDesservie.getAll(conn);
             List<TypeSiege> typesSiege = TypeSiege.getAll(conn);
             List<Avion> avions = Avion.getAll(conn);
-            
-            // Récupérer les tarifs pour chaque vol
+            LocalDateTime nowPlus48h = LocalDateTime.now().plusHours(48);
             for (Vol vol : vols) {
                 vol.setTarifs(TarifVol.getTarifsByVol(conn, vol.getIdVol()));
             }
@@ -135,6 +136,7 @@ public class VolController {
             mv.addObject("villes", villes);
             mv.addObject("typesSiege", typesSiege);
             mv.addObject("avions", avions);
+            mv.addObject("nowPlus48h", nowPlus48h);
         } catch (SQLException e) {
             e.printStackTrace();
             mv.addObject("error", "Erreur lors de la récupération des vols: " + e.getMessage());
@@ -174,6 +176,9 @@ public class VolController {
             List<VilleDesservie> villes = VilleDesservie.getAll(conn);
             List<TypeSiege> typesSiege = TypeSiege.getAll(conn);
             
+            // Filtrer les vols dont la date de départ est >= dateLimiteReservation
+            LocalDateTime nowPlus48h = LocalDateTime.now().plusHours(48);
+            
             // Récupérer les tarifs pour chaque vol
             for (Vol vol : vols) {
                 vol.setTarifs(TarifVol.getTarifsByVol(conn, vol.getIdVol()));
@@ -188,6 +193,7 @@ public class VolController {
             mv.addObject("searchVilleArrivee", villeArrivee);
             mv.addObject("searchDateDepart", dateDepart);
             mv.addObject("searchDateArrivee", dateArrivee);
+            mv.addObject("nowPlus48h", nowPlus48h);
         } catch (SQLException e) {
             e.printStackTrace();
             mv.addObject("error", "Erreur lors de la recherche des vols");
