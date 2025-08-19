@@ -34,13 +34,6 @@
                                     <i class="fas fa-list me-2"></i>Mes reservations
                                 </a>
                             </li>
-                            <% if(session.getAttribute("user") != null) { %>
-                                <li>
-                                    <a class="dropdown-item" href="${pageContext.request.contextPath}/reservation/vol">
-                                        <i class="fas fa-ticket-alt me-2"></i>Réserver un vol
-                                    </a>
-                                </li>
-                            <% } %>
                             <% if(session.getAttribute("userRole") != null && 
                                   session.getAttribute("userRole").equals("ADMIN")) { %>
                                 <li>
@@ -49,6 +42,14 @@
                                 <li>
                                     <a class="dropdown-item" href="${pageContext.request.contextPath}/vol/insertForm">
                                         <i class="fas fa-plus me-2"></i>Ajouter un vol
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="${pageContext.request.contextPath}/promotion/insertForm">
+                                        <i class="fas fa-plus me-2"></i>Ajouter une promotion
                                     </a>
                                 </li>
                             <% } %>

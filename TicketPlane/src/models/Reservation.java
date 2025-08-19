@@ -139,17 +139,32 @@ public class Reservation {
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
-    public static List<Reservation> getByUtilisateur(Connection conn, int idUtilisateur) throws SQLException {
+    public static List<Reservation> getByUtilisateur(Connection conn, int idUtilisateur, Integer idStatut) throws SQLException {
         List<Reservation> reservations = new ArrayList<>();
-        String sql = "SELECT * FROM Reservation WHERE id_utilisateur = ? ORDER BY date_reservation DESC";
         
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        // SQL de base
+        StringBuilder sql = new StringBuilder(
+            "SELECT * FROM Reservation WHERE id_utilisateur = ?"
+        );
+        
+        // Si un statut est fourni, on ajoute le filtre
+        if (idStatut != null) {
+            sql.append(" AND id_statut = ?");
+        }
+        
+        sql.append(" ORDER BY date_reservation DESC");
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             pstmt.setInt(1, idUtilisateur);
+            
+            // Bind du statut si présent
+            if (idStatut != null) {
+                pstmt.setInt(2, idStatut);
+            }
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     Reservation reservation = new Reservation();
-                    // Remplir les propriétés de l'objet Reservation selon votre structure
                     reservation.setIdReservation(rs.getInt("id_reservation"));
                     
                     // Charger les objets associés
@@ -171,6 +186,7 @@ public class Reservation {
         
         return reservations;
     }
+
 
     public static Reservation getById(Connection conn, int idReservation) throws SQLException {
         String sql = "SELECT * FROM Reservation WHERE id_reservation = ?";
@@ -203,9 +219,9 @@ public class Reservation {
 
     public void update(Connection conn) throws SQLException {
         String sql = "UPDATE Reservation SET id_vol = ?, id_utilisateur = ?, " +
-                    "id_statut = ?, id_type_siege = ?, prix_total = ?, " +
-                    "photo_passeport = ? WHERE id_reservation = ?";
-        
+                "id_statut = ?, id_type_siege = ?, prix_total = ?, " +
+                "photo_passeport = ? WHERE id_reservation = ?";
+
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, vol.getIdVol());
             pstmt.setInt(2, utilisateur.getIdUtilisateur());
@@ -214,8 +230,19 @@ public class Reservation {
             pstmt.setDouble(5, prixTotal);
             pstmt.setString(6, photoPasseport);
             pstmt.setInt(7, idReservation);
-            
+
             pstmt.executeUpdate();
         }
     }
+
+    public void payer(Connection conn) throws SQLException {
+        String sql = "UPDATE Reservation SET id_statut = ? WHERE id_reservation = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, 5);
+            pstmt.setInt(2, idReservation);
+            pstmt.executeUpdate();
+        }
+    }
+    
 } 

@@ -77,6 +77,7 @@ CREATE TABLE StatutReservation(
    PRIMARY KEY(id_statut),
    UNIQUE(nom)
 );
+
 -- Table principale des réservations
 CREATE TABLE Reservation(
    id_reservation SERIAL,
@@ -104,6 +105,17 @@ CREATE TABLE parametres_systeme (
    description TEXT,
    date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE promotions (
+   id SERIAL PRIMARY KEY,
+   id_type_siege INTEGER NOT NULL,
+   date_debut DATE NOT NULL,
+   date_fin DATE NOT NULL,
+   pourcentage DECIMAL(10, 2) NOT NULL,
+   nombre INTEGER NOT NULL,
+   reste INTEGER,
+   FOREIGN KEY(id_type_siege) REFERENCES TypeSiege(id_type)
+);
 -- Ajouter les nouveaux paramètres système
 INSERT INTO parametres_systeme (code, valeur, description)
 VALUES 
@@ -128,5 +140,7 @@ INSERT INTO StatutReservation (nom)
 VALUES ('Confirme'),
    ('En attente'),
    ('Annule'),
-   ('Rembourse');
+   ('Rembourse'),
+   ('Paye');
+
 

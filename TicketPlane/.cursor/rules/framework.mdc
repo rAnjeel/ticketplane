@@ -1,8 +1,3 @@
----
-description: 
-globs: 
-alwaysApply: true
----
 # Framework Rules
 
 ## Framework Location
@@ -30,8 +25,3 @@ alwaysApply: true
 - Keep framework dependencies up to date
 - Report framework issues through proper channels
 - Test code against framework requirements
-
-# Your rule content
-
-- You can @ files here
-- You can use markdown but dont have to

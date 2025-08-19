@@ -18,6 +18,26 @@
             <i class="fas fa-ticket-alt"></i> Mes Réservations
         </h2>
 
+            <!-- Filtres -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <!-- Select pour filtrer -->
+
+            <form method="get" action="${pageContext.request.contextPath}/reservation/mesReservations" class="d-flex align-items-center">
+                <label for="statut" class="me-2 fw-bold">Filtrer par statut :</label>
+                <select name="status" id="status" class="form-select me-2" style="width:200px;" onchange="this.form.submit()">
+                    <option value="">Tous</option>
+                    <option value="1">Confirmée</option>
+                    <option value="2">En attente</option>
+                    <option value="3">Annulée</option>
+                    <option value="5">Payée</option>
+                </select>
+            </form>
+
+            <a href="${pageContext.request.contextPath}/reservation/mesReservations" class="btn btn-outline-secondary ms-2">
+            Réinitialiser
+            </a>
+        </div>
+
         <c:if test="${not empty message}">
             <div class="alert alert-success" role="alert">
                 <i class="fas fa-check-circle"></i> ${message}
@@ -66,6 +86,9 @@
                                         <c:when test="${reservation.statut.idStatut == 3}">
                                             <span class="badge bg-danger">Annulée</span>
                                         </c:when>
+                                        <c:when test="${reservation.statut.idStatut == 5}">
+                                            <span class="badge bg-info">Payée</span>
+                                        </c:when>
                                         <c:otherwise>
                                             <span class="badge bg-secondary">${reservation.statut.nom}</span>
                                         </c:otherwise>
@@ -93,11 +116,20 @@
 
                             <div class="text-end">
                                 <c:if test="${reservation.statut.idStatut == 1}">
-                                    <a href="${pageContext.request.contextPath}/reservation/annuler?idReservation=${reservation.idReservation}" 
-                                       class="btn btn-outline-danger btn-sm me-2" 
-                                       onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
-                                        <i class="fas fa-times"></i> Annuler
-                                    </a>
+                                    <div class="btn-group" role="group">
+                                        <!-- Bouton Payer -->
+                                        <a href="${pageContext.request.contextPath}/reservation/payer?idReservation=${reservation.idReservation}" 
+                                        class="btn btn-success btn-sm d-flex align-items-center px-3">
+                                            <i class="fas fa-credit-card me-2"></i> Payer
+                                        </a>
+                                        
+                                        <!-- Bouton Annuler -->
+                                        <a href="${pageContext.request.contextPath}/reservation/annuler?idReservation=${reservation.idReservation}" 
+                                        class="btn btn-outline-danger btn-sm d-flex align-items-center px-3" 
+                                        onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
+                                            <i class="fas fa-times me-2"></i> Annuler
+                                        </a>
+                                    </div>
                                 </c:if>
                             </div>
                         </div>
