@@ -234,5 +234,15 @@ public class Reservation {
             pstmt.executeUpdate();
         }
     }
+
+    public void payer(Connection conn) throws SQLException {
+        String sql = "UPDATE Reservation SET id_statut = ? WHERE id_reservation = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, 5);
+            pstmt.setInt(2, idReservation);
+            pstmt.executeUpdate();
+        }
+    }
     
 } 

@@ -116,11 +116,20 @@
 
                             <div class="text-end">
                                 <c:if test="${reservation.statut.idStatut == 1}">
-                                    <a href="${pageContext.request.contextPath}/reservation/annuler?idReservation=${reservation.idReservation}" 
-                                       class="btn btn-outline-danger btn-sm me-2" 
-                                       onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
-                                        <i class="fas fa-times"></i> Annuler
-                                    </a>
+                                    <div class="btn-group" role="group">
+                                        <!-- Bouton Payer -->
+                                        <a href="${pageContext.request.contextPath}/reservation/payer?idReservation=${reservation.idReservation}" 
+                                        class="btn btn-success btn-sm d-flex align-items-center px-3">
+                                            <i class="fas fa-credit-card me-2"></i> Payer
+                                        </a>
+                                        
+                                        <!-- Bouton Annuler -->
+                                        <a href="${pageContext.request.contextPath}/reservation/annuler?idReservation=${reservation.idReservation}" 
+                                        class="btn btn-outline-danger btn-sm d-flex align-items-center px-3" 
+                                        onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?');">
+                                            <i class="fas fa-times me-2"></i> Annuler
+                                        </a>
+                                    </div>
                                 </c:if>
                             </div>
                         </div>

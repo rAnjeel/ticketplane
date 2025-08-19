@@ -62,7 +62,7 @@ public class PromotionController {
                 promo.create(conn);
 
                 conn.commit();
-                mv.setUrl("/promotion/list");
+                mv.setUrl("/promotion/insertForm");
                 mv.addObject("message", "Promotion ajoutée avec succès!");
             } catch (SQLException e) {
                 conn.rollback();

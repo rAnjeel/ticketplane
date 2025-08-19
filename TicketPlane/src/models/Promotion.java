@@ -219,7 +219,20 @@ public class Promotion {
         String sql = "UPDATE promotions SET reste = reste - 1 WHERE id = ? AND reste > 0";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, idPromotion);
-            pstmt.executeUpdate();
+            int updated = pstmt.executeUpdate();
+            if (updated == 0) {
+                System.err.println("[diminuerReste] Aucune ligne mise à jour, soit reste=0, soit idPromotion invalide: " + idPromotion);
+                throw new SQLException("Impossible de diminuer reste pour la promotion id=" + idPromotion);
+            } else {
+                System.out.println("[diminuerReste] reste diminué pour promotion id=" + idPromotion);
+            }
+        } catch (SQLException e) {
+            System.err.println("[diminuerReste][SQLException] Erreur SQL : " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            System.err.println("[diminuerReste][Exception] Erreur inattendue : " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -230,41 +243,73 @@ public class Promotion {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     int reste = rs.getInt("reste");
+                    System.out.println("[aEncoreReste] Promotion " + idPromotion + " a reste=" + reste);
                     return reste > 0;
+                } else {
+                    System.err.println("[aEncoreReste] Aucune promotion trouvée pour id=" + idPromotion);
                 }
             }
+        } catch (SQLException e) {
+            System.err.println("[aEncoreReste][SQLException] Erreur SQL : " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            System.err.println("[aEncoreReste][Exception] Erreur inattendue : " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
         return false;
     }
 
     public List<Promotion> getPromotionsByDateAndType(Connection conn, String dateStr, int typeSiege) throws SQLException {
         List<Promotion> promotions = new ArrayList<>();
-        
-        // Convertir la chaîne de date en java.sql.Date
-        Date date = Date.valueOf(dateStr);
-        
-        String sql = "SELECT * FROM promotions WHERE date_debut <= ? AND date_fin >= ? AND id_type_siege = ?";
-        
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setDate(1, date);
-            pstmt.setDate(2, date);
-            pstmt.setInt(3, typeSiege);
-            
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Promotion promotion = new Promotion();
-                    promotion.setId(rs.getInt("id"));
-                    promotion.setTypeSiege(TypeSiege.getElementById(conn, rs.getInt("id_type_siege")));
-                    promotion.setDateDebut(rs.getDate("date_debut"));
-                    promotion.setDateFin(rs.getDate("date_fin"));
-                    promotion.setPourcentage(rs.getDouble("pourcentage"));
-                    promotion.setNombre(rs.getInt("nombre"));
-                    
-                    promotions.add(promotion);
+        try {
+            // Convertir la chaîne de date
+            // Supprimer l'heure si présente (on garde uniquement AAAA-MM-JJ)
+            if (dateStr.contains(" ")) {
+                dateStr = dateStr.split(" ")[0];
+            }
+            Date date = Date.valueOf(dateStr);
+            System.out.println("[getPromotionsByDateAndType] Recherche promotions pour date=" + date + ", typeSiege=" + typeSiege);
+
+            String sql = "SELECT * FROM promotions WHERE date_debut <= ? AND date_fin >= ? AND id_type_siege = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setDate(1, date);
+                pstmt.setDate(2, date);
+                pstmt.setInt(3, typeSiege);
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        Promotion promotion = new Promotion();
+                        promotion.setId(rs.getInt("id"));
+                        promotion.setTypeSiege(TypeSiege.getElementById(conn, rs.getInt("id_type_siege")));
+                        promotion.setDateDebut(rs.getDate("date_debut"));
+                        promotion.setDateFin(rs.getDate("date_fin"));
+                        promotion.setPourcentage(rs.getDouble("pourcentage"));
+                        promotion.setNombre(rs.getInt("nombre"));
+                        
+                        // Debug : vérifier si la colonne reste existe
+                        try {
+                            int reste = rs.getInt("reste");
+                            System.out.println("[getPromotionsByDateAndType] Promotion trouvée id=" + promotion.getId() + ", reste=" + reste);
+                        } catch (SQLException ex) {
+                            System.err.println("[getPromotionsByDateAndType] Colonne 'reste' introuvable dans la table promotions !");
+                        }
+                        
+                        promotions.add(promotion);
+                    }
                 }
             }
+        } catch (IllegalArgumentException e) {
+            System.err.println("[getPromotionsByDateAndType] Format de date invalide : " + dateStr);
+            throw e;
+        } catch (SQLException e) {
+            System.err.println("[getPromotionsByDateAndType][SQLException] Erreur SQL : " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            System.err.println("[getPromotionsByDateAndType][Exception] Erreur inattendue : " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-        
         return promotions.isEmpty() ? null : promotions;
     }
 }

@@ -79,7 +79,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" 
                                                name="typeSiege_idType" 
-                                               value="1"
+                                               value="2"
                                                id="typeEconomique"
                                                data-price="${prixEconomique}"
                                                onclick="updatePrice('${prixEconomique}'); selectCard('economique')"
@@ -108,7 +108,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" 
                                                name="typeSiege_idType" 
-                                               value="2"
+                                               value="1"
                                                id="typeBusiness"
                                                data-price="${prixBusiness}"
                                                onclick="updatePrice('${prixBusiness}'); selectCard('business')"
