@@ -51,6 +51,14 @@
                                         <i class="fas fa-plus me-2"></i>Ajouter un vol
                                     </a>
                                 </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="${pageContext.request.contextPath}/promotion/insertForm">
+                                        <i class="fas fa-plus me-2"></i>Ajouter une promotion
+                                    </a>
+                                </li>
                             <% } %>
                         </ul>
                     </li>
