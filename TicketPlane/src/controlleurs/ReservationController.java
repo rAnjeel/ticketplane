@@ -71,7 +71,7 @@ public class ReservationController {
     }
 
     @Url("/reservation/mesReservations")
-    public ModelView listeReservationsUtilisateur(MySession session) {
+    public ModelView listeReservationsUtilisateur(MySession session,@Param(name = "status") String status) {
         ModelView mv = new ModelView("/reservation/liste.jsp");
         
         try (Connection conn = DatabaseConnection.getConnection()) {
@@ -84,9 +84,14 @@ public class ReservationController {
                 mv.addObject("error", "Veuillez vous connecter pour accéder à vos réservations");
                 return mv;
             }
+
+            Integer statusCheck = null;
+            if (status != null) {
+                statusCheck = Integer.parseInt(status);
+            }
             
             // Récupérer les réservations de l'utilisateur
-            List<Reservation> reservations = Reservation.getByUtilisateur(conn, utilisateur.getIdUtilisateur());
+            List<Reservation> reservations = Reservation.getByUtilisateur(conn, utilisateur.getIdUtilisateur(),statusCheck);
             
             mv.addObject("reservations", reservations);
             mv.addObject("utilisateur", utilisateur);

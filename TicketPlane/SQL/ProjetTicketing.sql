@@ -139,5 +139,7 @@ INSERT INTO StatutReservation (nom)
 VALUES ('Confirme'),
    ('En attente'),
    ('Annule'),
-   ('Rembourse');
+   ('Rembourse'),
+   ('Paye');
+
 

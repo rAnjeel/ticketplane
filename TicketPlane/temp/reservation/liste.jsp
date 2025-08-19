@@ -18,6 +18,21 @@
             <i class="fas fa-ticket-alt"></i> Mes Réservations
         </h2>
 
+            <!-- Filtres -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <!-- Select pour filtrer -->
+            <form method="get" action="${pageContext.request.contextPath}/reservation/mesReservations" class="d-flex align-items-center">
+                <label for="statut" class="me-2 fw-bold">Filtrer par statut :</label>
+                <select name="status" id="status" class="form-select me-2" style="width:200px;" onchange="this.form.submit()">
+                    <option value="">Tous</option>
+                    <option value="1">Confirmée</option>
+                    <option value="2">En attente</option>
+                    <option value="3">Annulée</option>
+                    <option value="5">Payée</option>
+                </select>
+            </form>
+        </div>
+
         <c:if test="${not empty message}">
             <div class="alert alert-success" role="alert">
                 <i class="fas fa-check-circle"></i> ${message}
@@ -65,6 +80,9 @@
                                         </c:when>
                                         <c:when test="${reservation.statut.idStatut == 3}">
                                             <span class="badge bg-danger">Annulée</span>
+                                        </c:when>
+                                        <c:when test="${reservation.statut.idStatut == 5}">
+                                            <span class="badge bg-info">Payée</span>
                                         </c:when>
                                         <c:otherwise>
                                             <span class="badge bg-secondary">${reservation.statut.nom}</span>
