@@ -2,12 +2,14 @@
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <%@ page import="models.Promotion" %>
 
-<!DOCTYPE html>
-<html lang="fr">
+<!DOCTYPE html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Insertion Promotion</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/rAnjeel/ticketplane@main/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
 <jsp:include page="../components/header.jsp" />
@@ -31,13 +33,15 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="typeSiege" class="form-label">Type de siège</label>
-                <select name="type_siege.id_type" id="typeSiege" class="form-select" required>
-                    <option value="">Sélectionnez un type</option>
+                <select name="promotion.type_siege" class="form-select">
                     <c:forEach items="${typesSiege}" var="type">
-                        <option value="${type.idType}" 
-                            <%= (formData != null && formData.getTypeSiege()!=null 
-                                 && formData.getTypeSiege().getIdType()==type.getIdType()) ? "selected" : "" %>>
-                            ${type.nomType}
+                        <option value="${type.idType}"
+                            <c:if test="${formData != null 
+                                        and formData.typeSiege != null 
+                                        and formData.typeSiege.idType == type.idType}">
+                                selected
+                            </c:if>>
+                            ${type.nom}
                         </option>
                     </c:forEach>
                 </select>

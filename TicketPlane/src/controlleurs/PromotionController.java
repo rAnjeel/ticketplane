@@ -8,7 +8,10 @@ import config.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
+import java.sql.Date;
+
 
 @Controller
 public class PromotionController {
@@ -26,22 +29,34 @@ public class PromotionController {
         return mv;
     }
 
-
     @Url("/promotion/insert")
     @Post
     @FormPath("/promotion/insertForm")
-    public ModelView insertPromotion(@RequestObject(value = "promotion") Promotion promo,
-                                    @RequestObject(value = "type_siege") TypeSiege typeSiege) {
+    public ModelView insertPromotion(
+            @Param(name="promotion.type_siege") int idType,
+            @Param(name="promotion.date_debut") String dateDebut,
+            @Param(name="promotion.date_fin") String dateFin,
+            @Param(name="promotion.pourcentage") double pourcentage,
+            @Param(name="promotion.nombre") int nombre
+    ) {
         ModelView mv = new ModelView();
+        Promotion promo = new Promotion();
+
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                // Charger le TypeSiege complet
-                typeSiege = TypeSiege.getElementById(conn, typeSiege.getIdType());
+                // Récupérer le TypeSiege choisi
+                TypeSiege typeSiege = TypeSiege.getElementById(conn, idType);
                 if (typeSiege == null) {
                     throw new SQLException("Le type de siège sélectionné n'existe pas");
                 }
+
+                // Mapper les données dans l’objet Promotion
                 promo.setTypeSiege(typeSiege);
+                promo.setDateDebut(Date.valueOf(dateDebut));
+                promo.setDateFin(Date.valueOf(dateFin));
+                promo.setPourcentage(pourcentage);
+                promo.setNombre(nombre);
 
                 // Sauvegarde en DB
                 promo.create(conn);
@@ -53,7 +68,7 @@ public class PromotionController {
                 conn.rollback();
                 throw e;
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             mv.setUrl("/promotion/insertForm");
             mv.addObject("error", "Erreur lors de l'insertion: " + e.getMessage());
@@ -61,5 +76,4 @@ public class PromotionController {
         }
         return mv;
     }
-
 }
