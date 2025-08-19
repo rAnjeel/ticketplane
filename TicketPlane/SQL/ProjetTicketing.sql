@@ -113,6 +113,7 @@ CREATE TABLE promotions (
    date_fin DATE NOT NULL,
    pourcentage DECIMAL(10, 2) NOT NULL,
    nombre INTEGER NOT NULL,
+   reste INTEGER,
    FOREIGN KEY(id_type_siege) REFERENCES TypeSiege(id_type)
 );
 -- Ajouter les nouveaux paramètres système

@@ -219,9 +219,9 @@ public class Reservation {
 
     public void update(Connection conn) throws SQLException {
         String sql = "UPDATE Reservation SET id_vol = ?, id_utilisateur = ?, " +
-                    "id_statut = ?, id_type_siege = ?, prix_total = ?, " +
-                    "photo_passeport = ? WHERE id_reservation = ?";
-        
+                "id_statut = ?, id_type_siege = ?, prix_total = ?, " +
+                "photo_passeport = ? WHERE id_reservation = ?";
+
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, vol.getIdVol());
             pstmt.setInt(2, utilisateur.getIdUtilisateur());
@@ -230,8 +230,9 @@ public class Reservation {
             pstmt.setDouble(5, prixTotal);
             pstmt.setString(6, photoPasseport);
             pstmt.setInt(7, idReservation);
-            
+
             pstmt.executeUpdate();
         }
     }
+    
 } 

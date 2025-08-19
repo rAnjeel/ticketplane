@@ -21,6 +21,7 @@
             <!-- Filtres -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <!-- Select pour filtrer -->
+
             <form method="get" action="${pageContext.request.contextPath}/reservation/mesReservations" class="d-flex align-items-center">
                 <label for="statut" class="me-2 fw-bold">Filtrer par statut :</label>
                 <select name="status" id="status" class="form-select me-2" style="width:200px;" onchange="this.form.submit()">
@@ -31,6 +32,10 @@
                     <option value="5">Payée</option>
                 </select>
             </form>
+
+            <a href="${pageContext.request.contextPath}/reservation/mesReservations" class="btn btn-outline-secondary ms-2">
+            Réinitialiser
+            </a>
         </div>
 
         <c:if test="${not empty message}">

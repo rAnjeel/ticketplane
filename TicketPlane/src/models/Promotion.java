@@ -94,14 +94,15 @@ public class Promotion {
 
     // --- CRUD Methods ---
     public void create(Connection conn) throws SQLException {
-        String sql = "INSERT INTO promotions (id_type_siege, date_debut, date_fin, pourcentage, nombre) " +
-                     "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO promotions (id_type_siege, date_debut, date_fin, pourcentage, nombre, reste) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, typeSiege.getIdType());
             pstmt.setDate(2, dateDebut);
             pstmt.setDate(3, dateFin);
             pstmt.setDouble(4, pourcentage);
             pstmt.setInt(5, nombre);
+            pstmt.setInt(6, nombre);
             pstmt.executeUpdate();
 
             ResultSet rs = pstmt.getGeneratedKeys();
@@ -174,7 +175,8 @@ public class Promotion {
     }
 
     // --- Recherche simple (facultatif comme Vol.search) ---
-    public static List<Promotion> search(Connection conn, Integer typeSiegeId, Date dateDebut, Date dateFin) throws SQLException {
+    public static List<Promotion> search(Connection conn, Integer typeSiegeId, Date dateDebut, Date dateFin)
+            throws SQLException {
         List<Promotion> promotions = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM promotions WHERE 1=1");
         List<Object> params = new ArrayList<>();
@@ -201,16 +203,68 @@ public class Promotion {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 Promotion promo = new Promotion(
-                    rs.getInt("id"),
-                    TypeSiege.getElementById(conn, rs.getInt("id_type_siege")),
-                    rs.getDate("date_debut"),
-                    rs.getDate("date_fin"),
-                    rs.getDouble("pourcentage"),
-                    rs.getInt("nombre")
-                );
+                        rs.getInt("id"),
+                        TypeSiege.getElementById(conn, rs.getInt("id_type_siege")),
+                        rs.getDate("date_debut"),
+                        rs.getDate("date_fin"),
+                        rs.getDouble("pourcentage"),
+                        rs.getInt("nombre"));
                 promotions.add(promo);
             }
         }
         return promotions;
+    }
+    
+    public void diminuerReste(Connection conn, int idPromotion) throws SQLException {
+        String sql = "UPDATE promotions SET reste = reste - 1 WHERE id = ? AND reste > 0";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idPromotion);
+            pstmt.executeUpdate();
+        }
+    }
+
+    public boolean aEncoreReste(Connection conn, int idPromotion) throws SQLException {
+        String sql = "SELECT reste FROM promotions WHERE id = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idPromotion);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int reste = rs.getInt("reste");
+                    return reste > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    public List<Promotion> getPromotionsByDateAndType(Connection conn, String dateStr, int typeSiege) throws SQLException {
+        List<Promotion> promotions = new ArrayList<>();
+        
+        // Convertir la chaîne de date en java.sql.Date
+        Date date = Date.valueOf(dateStr);
+        
+        String sql = "SELECT * FROM promotions WHERE date_debut <= ? AND date_fin >= ? AND id_type_siege = ?";
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setDate(1, date);
+            pstmt.setDate(2, date);
+            pstmt.setInt(3, typeSiege);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Promotion promotion = new Promotion();
+                    promotion.setId(rs.getInt("id"));
+                    promotion.setTypeSiege(TypeSiege.getElementById(conn, rs.getInt("id_type_siege")));
+                    promotion.setDateDebut(rs.getDate("date_debut"));
+                    promotion.setDateFin(rs.getDate("date_fin"));
+                    promotion.setPourcentage(rs.getDouble("pourcentage"));
+                    promotion.setNombre(rs.getInt("nombre"));
+                    
+                    promotions.add(promotion);
+                }
+            }
+        }
+        
+        return promotions.isEmpty() ? null : promotions;
     }
 }
