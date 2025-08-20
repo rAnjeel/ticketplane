@@ -1,6 +1,6 @@
 -- Insertion des modèles d'avions
 INSERT INTO Modele (nom) VALUES 
-    ('Air MAda'),
+    ('Air Mad'),
     ('Air france');
 
 -- Insertion des avions
@@ -43,3 +43,16 @@ VALUES ('Economique');
 -- AND date_fin >= 2025-08-20
 -- ORDER BY date_fin ASC
 -- LIMIT 1;
+
+
+-- Vider toutes les tables et réinitialiser les auto-increments
+TRUNCATE TABLE 
+    Reservation,
+    TarifVol,
+    placeVol,
+    promotions,
+    Vol,
+    Avion,
+    Modele,
+    VilleDesservie,
+RESTART IDENTITY CASCADE;
