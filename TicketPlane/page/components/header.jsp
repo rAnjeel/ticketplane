@@ -52,6 +52,11 @@
                                         <i class="fas fa-plus me-2"></i>Ajouter une promotion
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="${pageContext.request.contextPath}/placevol/insertForm">
+                                        <i class="fas fa-plus me-2"></i>Ajouter une place vol
+                                    </a>
+                                </li>
                             <% } %>
                         </ul>
                     </li>
