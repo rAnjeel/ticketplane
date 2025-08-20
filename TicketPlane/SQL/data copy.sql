@@ -10,16 +10,7 @@ INSERT INTO Avion (immatriculation, date_fabrication, id_modele, siege_economiqu
     (101234, '2018-03-15', 1, 100, 30),
     (101235, '2019-06-22', 2, 100, 20);
 
--- ROLE
-INSERT INTO Role (nom)
-VALUES ('ADMIN');
-INSERT INTO Role (nom)
-VALUES ('CLIENT');
--- UTILISATEUR
-INSERT INTO Utilisateur (email, mdp, id_role)
-VALUES ('admin@gmail.com', 'admin', 1);
-INSERT INTO Utilisateur (email, mdp, id_role)
-VALUES ('client1@gmail.com', 'client123', 2);
+
 -- VILLE
 INSERT INTO VilleDesservie (nom, pays, code_aeroport)
 VALUES ('Antananarivo', 'Madagascar', 123456);
@@ -29,11 +20,7 @@ INSERT INTO VilleDesservie (nom, pays, code_aeroport)
 VALUES ('Mauritius', 'Mauritius', 123458);
 INSERT INTO VilleDesservie (nom, pays, code_aeroport)
 VALUES ('Addis Abeba', 'Addis', 123459);
--- TYPE_SIEGE
-INSERT INTO TypeSiege (nom)
-VALUES ('Business');
-INSERT INTO TypeSiege (nom)
-VALUES ('Economique');
+
 
 
 -- SELECT prix
@@ -56,3 +43,20 @@ TRUNCATE TABLE
     Modele,
     VilleDesservie,
 RESTART IDENTITY CASCADE;
+
+
+-- Vol 1
+UPDATE Reservation SET date_reservation = '2025-08-20' WHERE id_reservation = '1';
+UPDATE Reservation SET date_reservation = '2025-08-21' WHERE id_reservation = '2';
+UPDATE Reservation SET date_reservation = '2025-08-21' WHERE id_reservation = '3';
+UPDATE Reservation SET date_reservation = '2025-08-28' WHERE id_reservation = '4';
+UPDATE Reservation SET date_reservation = '2025-08-29' WHERE id_reservation = '5';
+UPDATE Reservation SET date_reservation = '2025-09-01' WHERE id_reservation = '6';
+UPDATE Reservation SET date_reservation = '2025-09-02' WHERE id_reservation = '7';
+
+-- Vol 2
+UPDATE Reservation SET date_reservation = '2025-09-01' WHERE id_reservation = '8';
+UPDATE Reservation SET date_reservation = '2025-09-02' WHERE id_reservation = '9';
+UPDATE Reservation SET date_reservation = '2025-09-08' WHERE id_reservation = '10';
+UPDATE Reservation SET date_reservation = '2025-09-10' WHERE id_reservation = '11';
+
