@@ -236,12 +236,98 @@ public class Reservation {
     }
 
     public void payer(Connection conn) throws SQLException {
-        String sql = "UPDATE Reservation SET id_statut = ? WHERE id_reservation = ?";
+        System.out.println("=== DÉBUT MÉTHODE PAYER ===");
 
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, 5);
-            pstmt.setInt(2, idReservation);
-            pstmt.executeUpdate();
+        if (this.vol == null || this.typeSiege == null) {
+            throw new SQLException("Réservation invalide : vol ou type de siège manquant");
+        }
+        System.out.println("ID Réservation: " + this.idReservation);
+        System.out.println("ID Vol: " + this.vol.getIdVol());
+        System.out.println("ID Type Siège: " + this.typeSiege.getIdType());
+        System.out.println("Date Réservation (String): " + this.dateReservation);
+
+        // Convertir la date de réservation (String) -> java.sql.Date (AAAA-MM-JJ)
+        Date dateResSql = toSqlDateFromStringTimestamp(this.dateReservation);
+        if (dateResSql == null) {
+            throw new SQLException("Format de date_reservation invalide: " + this.dateReservation);
+        }
+        System.out.println("Date Réservation (SQL Date utilisée): " + dateResSql);
+
+        Double prixTrouve = null;
+
+        // 1) Chercher un prix dans PlaceVol pour ce vol & type siège, valide à la date de réservation
+        //    Règle: on prend un enregistrement dont date_fin >= date_réservation (valide jusqu’à date_fin)
+        String sqlCheck = """
+            SELECT prix
+            FROM placevol
+            WHERE id_vol = ?
+            AND id_type_siege = ?
+            AND date_fin >= ?
+            ORDER BY date_fin ASC
+            LIMIT 1
+        """;
+        System.out.println("\n--- RECHERCHE DU PRIX ---");
+        System.out.println("SQL: " + sqlCheck);
+        System.out.println("Paramètres: id_vol=" + this.vol.getIdVol()
+                + ", id_type_siege=" + this.typeSiege.getIdType()
+                + ", date_fin>=" + dateResSql);
+
+        try (PreparedStatement pstmtCheck = conn.prepareStatement(sqlCheck)) {
+            pstmtCheck.setInt(1, this.vol.getIdVol());
+            pstmtCheck.setInt(2, this.typeSiege.getIdType());
+            pstmtCheck.setDate(3, dateResSql);
+
+            try (ResultSet rs = pstmtCheck.executeQuery()) {
+                if (rs.next()) {
+                    prixTrouve = rs.getDouble("prix");
+                    System.out.println("✅ Prix trouvé: " + prixTrouve);
+                } else {
+                    System.out.println("❌ Aucun prix trouvé (on mettra seulement le statut=5)");
+                }
+            }
+        }
+
+        // 2) Mise à jour : toujours statut=5 ; si prix trouvé, on met aussi prix_total
+        final String sqlUpdate = (prixTrouve != null)
+                ? "UPDATE Reservation SET id_statut = ?, prix_total = ? WHERE id_reservation = ?"
+                : "UPDATE Reservation SET id_statut = ? WHERE id_reservation = ?";
+
+        System.out.println("\n--- MISE À JOUR RÉSERVATION ---");
+        System.out.println("SQL: " + sqlUpdate);
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sqlUpdate)) {
+            pstmt.setInt(1, 5); // 5 = payé (selon ton référentiel)
+
+            if (prixTrouve != null) {
+                pstmt.setDouble(2, prixTrouve);
+                pstmt.setInt(3, this.idReservation);
+                System.out.println("Paramètres: id_statut=5, prix_total=" + prixTrouve + ", id_reservation=" + this.idReservation);
+            } else {
+                pstmt.setInt(2, this.idReservation);
+                System.out.println("Paramètres: id_statut=5, id_reservation=" + this.idReservation);
+            }
+
+            int rows = pstmt.executeUpdate();
+            System.out.println("✅ Lignes mises à jour: " + rows);
+        }
+
+        System.out.println("=== FIN MÉTHODE PAYER ===\n");
+    }
+
+    /**
+     * Convertit une chaîne Timestamp (ex: "2025-08-27 12:00:00.0") en java.sql.Date (AAAA-MM-JJ).
+     * Retourne null si la chaîne est vide/incorrecte.
+     */
+    private static java.sql.Date toSqlDateFromStringTimestamp(String dateTime) {
+        if (dateTime == null || dateTime.isEmpty()) return null;
+        try {
+            String justDate = dateTime.contains(" ")
+                    ? dateTime.substring(0, dateTime.indexOf(' '))
+                    : dateTime;
+            return java.sql.Date.valueOf(justDate);
+        } catch (IllegalArgumentException e) {
+            System.err.println("[toSqlDateFromStringTimestamp] Format invalide: " + dateTime);
+            return null;
         }
     }
     
