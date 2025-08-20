@@ -4,3 +4,11 @@ WEBSERVICE :  miantso id reservation de mitelecharge en format pdf (miantso web 
 
 NB: regarder standart webservice , ca doit suivre  JSON Responde
 Rehefa vita de asina token ou formulaire de validation
+
+
+
+Date frarany par rapport vol
+
+Check reservation/promotion rehetra izay date butoir inferieur, izay reservation rehetra tsy payer de annulena
+jerena raha misy meme vol sy meme classe de apidirina par rapport le isana reservation ny isanle siege apres
+makany amle place manaraka

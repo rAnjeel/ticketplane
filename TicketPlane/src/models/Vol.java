@@ -231,20 +231,40 @@ public class Vol {
             for (int i = 0; i < params.size(); i++) {
                 pstmt.setObject(i + 1, params.get(i));
             }
-            
+
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 Vol vol = new Vol(
-                    rs.getInt("id_vol"),
-                    rs.getTimestamp("date_depart").toString(),
-                    rs.getTimestamp("date_arrivee").toString(),
-                    VilleDesservie.read(conn, rs.getInt("id_ville_depart")),
-                    VilleDesservie.read(conn, rs.getInt("id_ville_arrivee")),
-                    Avion.read(conn, rs.getInt("id_avion"))
-                );
+                        rs.getInt("id_vol"),
+                        rs.getTimestamp("date_depart").toString(),
+                        rs.getTimestamp("date_arrivee").toString(),
+                        VilleDesservie.read(conn, rs.getInt("id_ville_depart")),
+                        VilleDesservie.read(conn, rs.getInt("id_ville_arrivee")),
+                        Avion.read(conn, rs.getInt("id_avion")));
                 vols.add(vol);
             }
         }
         return vols;
     }
+
+    public static Vol getById(Connection conn, int idVol) throws SQLException {
+        String sql = "SELECT * FROM Vol WHERE id_vol = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, idVol);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Vol vol = new Vol();
+                    vol.setIdVol(rs.getInt("id_vol"));
+                    vol.setDateDepart(rs.getTimestamp("date_depart").toString());
+                    vol.setDateArrivee(rs.getTimestamp("date_arrivee").toString());
+                    vol.setVilleDepart(VilleDesservie.read(conn, rs.getInt("id_ville_depart")));
+                    vol.setVilleArrivee(VilleDesservie.read(conn, rs.getInt("id_ville_arrivee")));
+                    vol.setAvion(Avion.read(conn, rs.getInt("id_avion")));
+                    return vol;
+                }
+            }
+        }
+        return null; 
+    }
+
 } 

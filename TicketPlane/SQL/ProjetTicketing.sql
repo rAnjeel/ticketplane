@@ -116,6 +116,18 @@ CREATE TABLE promotions (
    reste INTEGER,
    FOREIGN KEY(id_type_siege) REFERENCES TypeSiege(id_type)
 );
+
+CREATE TABLE placeVol (
+   id SERIAL PRIMARY KEY,
+   id_vol INTEGER NOT NULL,
+   id_type_siege INTEGER NOT NULL,
+   date_fin DATE NOT NULL,
+   prix DECIMAL(10, 2) NOT NULL,
+   nombre INTEGER NOT NULL,
+   reste INTEGER,
+   FOREIGN KEY(id_type_siege) REFERENCES TypeSiege(id_type),
+   FOREIGN KEY(id_vol) REFERENCES Vol(id_vol)
+);
 -- Ajouter les nouveaux paramètres système
 INSERT INTO parametres_systeme (code, valeur, description)
 VALUES 
