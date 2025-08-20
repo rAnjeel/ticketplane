@@ -102,7 +102,7 @@ public class PlaceVolController {
                     SELECT r.id_vol, COUNT(*) as total
                     FROM reservation r
                     JOIN vol v ON r.id_vol = v.id_vol
-                    WHERE r.id_statut = 1 AND v.date_depart < ?
+                    WHERE r.id_statut = 1 AND r.date_reservation <= ?
                     GROUP BY r.id_vol
                 """;
 
@@ -122,7 +122,7 @@ public class PlaceVolController {
                             // 2. Trouver le prochain PlaceVol pour ce vol après la date donnée
                             String sqlNextPlaceVol = """
                                 SELECT * FROM placevol
-                                WHERE id_vol = ? AND date_fin >= ?
+                                WHERE id_vol = ? AND date_fin > ?
                                 ORDER BY date_fin ASC LIMIT 1
                             """;
 
