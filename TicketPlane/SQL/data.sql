@@ -66,10 +66,10 @@ INSERT INTO TypeSiege (nom)
 VALUES ('Economique');
 
 
-            SELECT prix
-            FROM placevol
-            WHERE id_vol = 5
-            AND id_type_siege = 1
-            AND date_fin >= 2025-08-20
-            ORDER BY date_fin ASC
-            LIMIT 1;
+-- SELECT prix
+-- FROM placevol
+-- WHERE id_vol = 5
+-- AND id_type_siege =2
+-- AND date_fin >= 2025-08-20
+-- ORDER BY date_fin ASC
+-- LIMIT 1;

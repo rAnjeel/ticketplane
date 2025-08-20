@@ -88,49 +88,72 @@ public class PlaceVolController {
     @Url("/placevol/reallocate")
     public ModelView reallocateReservations(@Param(name="date") String dateStr) {
         ModelView mv = new ModelView();
+        System.out.println("=== DÉBUT MÉTHODE reallocateReservations ===");
+        System.out.println("Date reçue en paramètre: " + dateStr);
+
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
             try {
                 Date date = Date.valueOf(dateStr);
+                System.out.println("Date SQL convertie: " + date);
 
                 // 1. Récupérer le nombre de réservations groupées par vol
                 String sqlReservations = """
                     SELECT r.id_vol, COUNT(*) as total
-                    FROM reservations r
-                    JOIN vols v ON r.id_vol = v.id
-                    WHERE r.status = 1 AND v.date_depart < ?
+                    FROM reservation r
+                    JOIN vol v ON r.id_vol = v.id_vol
+                    WHERE r.id_statut = 1 AND v.date_depart < ?
                     GROUP BY r.id_vol
                 """;
 
+                System.out.println("\n--- REQUÊTE RÉSERVATIONS ---");
+                System.out.println(sqlReservations);
+
                 try (var pstmt = conn.prepareStatement(sqlReservations)) {
                     pstmt.setDate(1, date);
+                    System.out.println("Paramètre: date=" + date);
+
                     try (var rs = pstmt.executeQuery()) {
                         while (rs.next()) {
                             int idVol = rs.getInt("id_vol");
                             int total = rs.getInt("total");
+                            System.out.println("\n>>> Vol trouvé: id_vol=" + idVol + ", total réservations=" + total);
 
                             // 2. Trouver le prochain PlaceVol pour ce vol après la date donnée
                             String sqlNextPlaceVol = """
                                 SELECT * FROM placevol
-                                WHERE id_vol = ? AND date_fin > ?
+                                WHERE id_vol = ? AND date_fin >= ?
                                 ORDER BY date_fin ASC LIMIT 1
                             """;
+
+                            System.out.println("--- REQUÊTE NEXT PLACEVOL ---");
+                            System.out.println(sqlNextPlaceVol);
 
                             try (var pstmt2 = conn.prepareStatement(sqlNextPlaceVol)) {
                                 pstmt2.setInt(1, idVol);
                                 pstmt2.setDate(2, date);
+                                System.out.println("Paramètres: id_vol=" + idVol + ", date=" + date);
+
                                 try (var rs2 = pstmt2.executeQuery()) {
                                     if (rs2.next()) {
                                         int idPlaceVol = rs2.getInt("id");
                                         int nombreActuel = rs2.getInt("nombre");
+                                        System.out.println(">>> PlaceVol trouvé: id=" + idPlaceVol + ", nombre actuel=" + nombreActuel);
 
                                         // 3. Mise à jour du nombre
                                         String sqlUpdate = "UPDATE placevol SET nombre = ? WHERE id = ?";
+                                        System.out.println("--- MISE À JOUR PLACEVOL ---");
+                                        System.out.println(sqlUpdate);
+                                        System.out.println("Nouveau nombre: " + (nombreActuel + total));
+
                                         try (var pstmt3 = conn.prepareStatement(sqlUpdate)) {
                                             pstmt3.setInt(1, nombreActuel + total);
                                             pstmt3.setInt(2, idPlaceVol);
-                                            pstmt3.executeUpdate();
+                                            int rows = pstmt3.executeUpdate();
+                                            System.out.println("✅ Mise à jour réussie, lignes modifiées: " + rows);
                                         }
+                                    } else {
+                                        System.out.println("❌ Aucun PlaceVol trouvé pour ce vol après la date donnée");
                                     }
                                 }
                             }
@@ -139,16 +162,22 @@ public class PlaceVolController {
                 }
 
                 conn.commit();
+                System.out.println("\n=== COMMIT EFFECTUÉ ===");
                 mv.addObject("message", "Réallocation effectuée avec succès à la date " + dateStr);
             } catch (SQLException e) {
                 conn.rollback();
+                System.err.println("❌ Erreur SQL: " + e.getMessage());
+                e.printStackTrace();
                 throw e;
             }
         } catch (Exception e) {
+            System.err.println("❌ Exception globale: " + e.getMessage());
             e.printStackTrace();
             mv.addObject("error", "Erreur lors de la réallocation : " + e.getMessage());
         }
-        mv.setUrl("/placevol/list"); // ou une autre vue selon ton choix
+
+        mv.setUrl("/placevol/list"); // Vue finale
+        System.out.println("=== FIN MÉTHODE reallocateReservations ===");
         return mv;
     }
 
