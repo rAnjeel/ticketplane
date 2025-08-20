@@ -84,4 +84,72 @@ public class PlaceVolController {
         }
         return mv;
     }
+
+    @Url("/placevol/reallocate")
+    public ModelView reallocateReservations(@Param(name="date") String dateStr) {
+        ModelView mv = new ModelView();
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                Date date = Date.valueOf(dateStr);
+
+                // 1. Récupérer le nombre de réservations groupées par vol
+                String sqlReservations = """
+                    SELECT r.id_vol, COUNT(*) as total
+                    FROM reservations r
+                    JOIN vols v ON r.id_vol = v.id
+                    WHERE r.status = 1 AND v.date_depart < ?
+                    GROUP BY r.id_vol
+                """;
+
+                try (var pstmt = conn.prepareStatement(sqlReservations)) {
+                    pstmt.setDate(1, date);
+                    try (var rs = pstmt.executeQuery()) {
+                        while (rs.next()) {
+                            int idVol = rs.getInt("id_vol");
+                            int total = rs.getInt("total");
+
+                            // 2. Trouver le prochain PlaceVol pour ce vol après la date donnée
+                            String sqlNextPlaceVol = """
+                                SELECT * FROM placevol
+                                WHERE id_vol = ? AND date_fin > ?
+                                ORDER BY date_fin ASC LIMIT 1
+                            """;
+
+                            try (var pstmt2 = conn.prepareStatement(sqlNextPlaceVol)) {
+                                pstmt2.setInt(1, idVol);
+                                pstmt2.setDate(2, date);
+                                try (var rs2 = pstmt2.executeQuery()) {
+                                    if (rs2.next()) {
+                                        int idPlaceVol = rs2.getInt("id");
+                                        int nombreActuel = rs2.getInt("nombre");
+
+                                        // 3. Mise à jour du nombre
+                                        String sqlUpdate = "UPDATE placevol SET nombre = ? WHERE id = ?";
+                                        try (var pstmt3 = conn.prepareStatement(sqlUpdate)) {
+                                            pstmt3.setInt(1, nombreActuel + total);
+                                            pstmt3.setInt(2, idPlaceVol);
+                                            pstmt3.executeUpdate();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                conn.commit();
+                mv.addObject("message", "Réallocation effectuée avec succès à la date " + dateStr);
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            mv.addObject("error", "Erreur lors de la réallocation : " + e.getMessage());
+        }
+        mv.setUrl("/placevol/list"); // ou une autre vue selon ton choix
+        return mv;
+    }
+
 }

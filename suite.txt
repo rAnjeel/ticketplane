@@ -12,3 +12,6 @@ Date frarany par rapport vol
 Check reservation/promotion rehetra izay date butoir inferieur, izay reservation rehetra tsy payer de annulena
 jerena raha misy meme vol sy meme classe de apidirina par rapport le isana reservation ny isanle siege apres
 makany amle place manaraka
+
+
+check placeVol 
